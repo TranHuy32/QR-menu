@@ -1,7 +1,6 @@
 'use strict';
 import { Model, DataTypes } from 'sequelize';
-
-export default (sequelize) => {
+import sequelize from '../config/database'
   class User extends Model {
     /**
      * Helper method for defining associations.
@@ -15,12 +14,12 @@ export default (sequelize) => {
 
   User.init(
     {
-      firstName: {
+      name: {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      lastName: {
-        type: DataTypes.STRING,
+      phonenumber: {
+        type: DataTypes.INTEGER,
         allowNull: false,
       },
       email: {
@@ -31,12 +30,22 @@ export default (sequelize) => {
           isEmail: true,
         },
       },
+      age: {
+        type: DataTypes.INTEGER,
+        allowNull:false,
+      },
+      address:{
+        type:DataTypes.STRING,
+        allowNull:false
+      },
+      password: {
+        type:DataTypes.STRING,
+        allowNull:false,
+      },
     },
     {
       sequelize,
       modelName: 'User',
     }
   );
-
-  return User;
-};
+  export default User
