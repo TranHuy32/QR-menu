@@ -3,21 +3,18 @@
   "version": "1.0.0",
   "description": "food ordering app ",
   "main": "index.js",
-  "type": "module",
   "scripts": {
-    "create-migration": "npx sequelize-cli migration:generate --name",
-    "undo-migrate": "babel-node ./node_modules/.bin/sequelize db:migrate:undo",
-    "migrate": "babel-node node_modules/.bin/sequelize db:migrate",
-    "build-babel": "babel ./src -d ./build/src",
-    "build": "npm run clean && npm run build-babel",
-    "production": "npm run build && node ./build/src/index.js",
-    "start": "nodemon --exec ./node_modules/.bin/babel-node ./index.js"
+    "start": "babel-node ./src/index.js",
+    "dev": "nodemon ./src/index.js --exec babel-node",
+    "migrate": "npx sequelize-cli db:migrate"
   },
   "author": "HTH",
   "license": "ISC",
   "dependencies": {
+    "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "http-status-codes": "^2.3.0",
     "mysql2": "^3.10.1",
     "sequelize": "^6.37.3"
   },
