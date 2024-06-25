@@ -5,7 +5,7 @@ import sequelize from './config/database.js';
 import loaders from './loaders';
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 4000;
 
 async function startServer() {
   try {
