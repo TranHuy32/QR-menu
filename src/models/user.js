@@ -19,16 +19,16 @@ import sequelize from '../config/database'
         allowNull: false,
       },
       phonenumber: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING,
         allowNull: false,
       },
       email: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true,
-        validate: {
-          isEmail: true,
-        },
+        // unique: true,
+        // validate: {
+        //   isEmail: true,
+        // },
       },
       age: {
         type: DataTypes.INTEGER,
