@@ -1,5 +1,6 @@
 import { Router } from "express";
-import { register, getUsers } from "../../../services/userServices.js";
+import { register,login, getUsers } from "../../../services/userServices.js";
+import { access_token, refresh_token, verifyToken } from "../../../middleware/auth.js";
 
 const route = Router();
 
@@ -17,7 +18,17 @@ const userRoutes = (app) => {
 };
 
 
-route.get("/", async (req, res, next) => {
+route.post("/login", async(req, res, next) => {
+  console.log(1234556,req.body);
+  try {
+    const token  = await login(req)
+    res.status(200).json({ status: 200, message:"Login Succesfully!!",data:token})
+  } catch (error) {
+    res.status(error.code || 500).json({ status: error.code || 500 , message: error.message || 'An internal server error occurred'}); 
+  }
+});
+
+route.get("/",verifyToken, async (req, res, next) => {
   try {
     const users = await getUsers(req);
     res.status(200).json({ status: 200, listUser: users });
@@ -26,6 +37,6 @@ route.get("/", async (req, res, next) => {
     console.error(error);
     res.status(500).json({ status: 500, message: "invalid users" });
   }
-})
+});
 
 export default userRoutes
