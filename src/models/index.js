@@ -4,6 +4,8 @@ const fs = require('fs');
 const path = require('path');
 const Sequelize = require('sequelize');
 const process = require('process');
+const { default: Dish } = require('./dish');
+const { default: Category } = require('./category');
 const basename = path.basename(__filename);
 const env = process.env.NODE_ENV || 'development';
 const config = require(__dirname + '/../config/config.json')[env];
@@ -44,7 +46,18 @@ Object.keys(db).forEach((modelName) => {
   }
 });
 
+
+Category.hasMany(Dish,{
+  foreignKey: 'category_id',
+  as:'dishs'
+})
+Dish.belongsTo(Category,{
+  foreignKey:'category_id',
+  as:'category'
+})
+
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
 module.exports = db;
+module.exports = {Dish,Category};

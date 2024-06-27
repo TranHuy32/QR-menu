@@ -3,7 +3,7 @@ import { createTable, getTables, getTablesById,updatedTablesById,deleteTablesByI
 
 const route = Router();
 
-const userRoutes = (app) => {
+const tableRoutes = (app) => {
   app.use("/table", route);
 // search all table
   route.get("/all", async (req, res, next) => {
@@ -63,4 +63,4 @@ const userRoutes = (app) => {
 
 };
 
-export default userRoutes
+export default tableRoutes
