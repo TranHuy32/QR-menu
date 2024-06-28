@@ -8,3 +8,12 @@ export const hashPassWord =  (password) => {
     throw new Error(error)
   }
 };
+
+export const passwordMatch = (inPassword, password) => {
+  try {
+    return bcrypt.compareSync(inPassword,password)
+  } catch (error) {
+    console.error(error);
+    throw new Error(error)
+  }
+}
