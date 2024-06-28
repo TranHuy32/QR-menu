@@ -1,13 +1,13 @@
 import User from "../models/user.js";
 import { hashPassWord, passwordMatch } from "./commonService.js";
 import { access_token, refresh_token } from "./authService.js";
+
 const register = async (req) => {
   const { email } = req.body;
   const existEmail = await User.findOne({
     where: { email },
   });
   if (existEmail) {
-    // throw new Error("Email already exists in the system. Please use a different email address.")
     const error = new Error(
       "Email already exists in the system. Please use a different email address."
     );
