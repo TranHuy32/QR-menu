@@ -9,6 +9,8 @@ import sequelize from '../config/database'
      */
     static associate(models) {
       // define association here
+      User.hasMany(models.UserToken, { foreignKey: 'user_id'}); 
+
     }
   }
 

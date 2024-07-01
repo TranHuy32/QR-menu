@@ -9,6 +9,8 @@ import sequelize from '../config/database'
      */
     static associate(models) {
       // define association here
+      Category.hasMany(models.Dish, { foreignKey: 'category_id' }); 
+      // Thiết lập mối quan hệ hasMany với Car
     }
   }
   Category.init({
@@ -18,6 +20,6 @@ import sequelize from '../config/database'
     } 
   }, {
     sequelize,
-    modelName: 'Categories',
+    modelName: 'Category',
   });
 export default Category
