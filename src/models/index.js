@@ -47,17 +47,17 @@ Object.keys(db).forEach((modelName) => {
 });
 
 
-Category.hasMany(Dish,{
-  foreignKey: 'category_id',
-  as:'dishs'
-})
-Dish.belongsTo(Category,{
-  foreignKey:'category_id',
-  as:'category'
-})
+// Category.hasMany(Dish,{
+//   foreignKey:'category_id',
+//   as:'dishs'
+// })
+// Dish.belongsTo(Category,{
+//   foreignKey:'category_id',
+//   as:'categories'
+// })
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
 module.exports = db;
-module.exports = {Dish,Category};
+// module.exports = {Dish,Category};

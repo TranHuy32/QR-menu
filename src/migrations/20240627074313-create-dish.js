@@ -1,6 +1,5 @@
 'use strict';
 
-
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -11,35 +10,46 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      name_dish: {
-        type: Sequelize.STRING
+      name: {
+        type: Sequelize.STRING,
+        allowNull: false,
       },
       price: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false,
       },
       image: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false,
       },
       description: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false,
       },
       createdAt: {
+        type: Sequelize.DATE,
         allowNull: false,
-        type: Sequelize.DATE
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       },
       updatedAt: {
+        type: Sequelize.DATE,
         allowNull: false,
-        type: Sequelize.DATE
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+      },
+      deleteAt: {
+        type: Sequelize.DATE,
+        allowNull:false,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       },
       category_id: {
-        type: Sequelize.INTEGER,
-        references: {
-          model: 'Categories',
-          key: 'id',
-        },
-        onUpdate: 'CASCADE', // Cập nhật khóa ngoại trong bảng Cars khi id trong bảng Users được cập nhật
-        onDelete: 'NO ACTION', // Or 'CASCADE', 'RESTRICT', depending on your needs // Khi user bị xóa thì sẽ kh xóa được nếu còn car phụ thuộc
+      type: Sequelize.INTEGER,
+      references:{
+        model:'Categories',
+        key:'id'
       },
+      onUpdate:'CASCADE',
+      onDelete:'SET NULL'
+    } 
     });
   },
   async down(queryInterface, Sequelize) {

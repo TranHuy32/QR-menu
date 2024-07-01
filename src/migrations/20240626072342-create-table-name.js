@@ -16,7 +16,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       uuid: {
-        type: DataTypes.STRING,
+        type: Sequelize.STRING,
         defaultValue: () => v4(), // Đảm bảo sinh UUID tự động cho trường uuid
         allowNull: false,
         unique: true,

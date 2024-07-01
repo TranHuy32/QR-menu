@@ -9,10 +9,11 @@ import sequelize from '../config/database'
      */
     static associate(models) {
       // define association here
+      Dish.belongsTo(models.Category, { foreignKey: 'category_id' }); // Thiết lập mối quan hệ belongsTo với User
     }
   }
   Dish.init({
-    name_dish:
+    name:
     {
        type:DataTypes.STRING,
        allowNull: false
@@ -39,8 +40,8 @@ import sequelize from '../config/database'
         model:'Categories',
         key:'id'
       },
-      onUpdate:'CASCADE',
-      onDelete:'SET NULL'
+      // onUpdate:'CASCADE',
+      // onDelete:'SET NULL'
     } 
   }, {
     sequelize,
