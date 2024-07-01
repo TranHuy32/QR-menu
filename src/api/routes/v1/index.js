@@ -3,7 +3,7 @@ import userRoutes from './user'
 import tableRouter from './table';
 import categoryRouter from './category';
 import dishRoute from './dish';
-import refreshTokenRoutes from './refreshToken'
+import refreshTokenRoutes from './auth'
 
 // any endpoints for api/{anything} will be here
 const v1 = Router();

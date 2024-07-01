@@ -6,7 +6,7 @@ const route = Router();
 
 const userRoutes = (app) => {
   app.use("/user", route);
-  route.post("/", async (req, res, next) => {
+  route.post("/register", async (req, res, next) => {
     try {
       const createUser = await register(req);
       res.status(200).json({ status: 200, newUsers: createUser });
