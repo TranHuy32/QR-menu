@@ -1,7 +1,9 @@
 import jwt from "jsonwebtoken";
 import "dotenv/config";
-import User from "../models/user";
+import db from '../../../models';
 import { hashPassWord, passwordMatch } from "./commonService.js";
+
+const User = db.User;
 
 const access_token = (user) => {
   return jwt.sign(user.toJSON(), process.env.ACCESS_TOKEN_SECRET, {

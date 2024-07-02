@@ -1,5 +1,6 @@
-import Category from '../models/category.js';
-import Dish from '../models/dish.js'
+import db from '../models';
+
+const Dish = db.Dish;
 
 const createDish = async(req) => {
     const {category_id}= req.body;
