@@ -1,5 +1,6 @@
-import { where } from "sequelize"
-import Table from "../models/table_name.js"
+import db from '../models';
+
+const Table = db.Table;
 
 const  createTable = async(req) => {
     try {

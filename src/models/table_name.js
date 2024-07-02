@@ -1,7 +1,7 @@
-'use strict';
 import { Model, DataTypes } from 'sequelize';
-import sequelize from '../config/database';
 import { v4 as uuidv4, v4 } from 'uuid';
+
+export default (sequelize) => {
   class Table extends Model {
     /**
      * Helper method for defining associations.
@@ -12,29 +12,32 @@ import { v4 as uuidv4, v4 } from 'uuid';
       // define association here
     }
   }
-  Table.init({
-    id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      primaryKey: true,
+  Table.init(
+    {
+      id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true,
+      },
+      uuid: {
+        type: DataTypes.STRING,
+        defaultValue: () => v4(), // Đảm bảo sinh UUID tự động cho trường uuid
+        allowNull: false,
+        unique: true,
+      },
+      name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      zone: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
     },
-    uuid: {
-      type: DataTypes.STRING,
-      defaultValue: () => v4(), // Đảm bảo sinh UUID tự động cho trường uuid
-      allowNull: false,
-      unique: true,
-    },
-    name:{
-      type:DataTypes.STRING,
-      allowNull: false
-    } ,
-    zone:{
-      type:DataTypes.STRING,
-      allowNull: false
+    {
+      sequelize,
+      modelName: 'Table_name',
     }
-  }, {
-    sequelize,
-    modelName: 'Table_name',
-
-  });
-export default Table;
+  );
+  return Table;
+};

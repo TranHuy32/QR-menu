@@ -1,5 +1,6 @@
-import { where } from "sequelize"
-import Category from "../models/category.js"
+import db from '../models';
+
+const Category = db.Category;
 
 const  createCategory = async(req) => {
     try {

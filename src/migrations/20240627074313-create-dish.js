@@ -38,8 +38,8 @@ module.exports = {
       },
       deleteAt: {
         type: Sequelize.DATE,
-        allowNull:false,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+        // allowNull:false,
+        // defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       },
       category_id: {
       type: Sequelize.INTEGER,

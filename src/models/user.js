@@ -1,6 +1,6 @@
-'use strict';
 import { Model, DataTypes } from 'sequelize';
-import sequelize from '../config/database'
+
+export default (sequelize) => {
   class User extends Model {
     /**
      * Helper method for defining associations.
@@ -9,8 +9,6 @@ import sequelize from '../config/database'
      */
     static associate(models) {
       // define association here
-      User.hasMany(models.UserToken, { foreignKey: 'user_id'}); 
-
     }
   }
 
@@ -34,15 +32,15 @@ import sequelize from '../config/database'
       },
       age: {
         type: DataTypes.INTEGER,
-        allowNull:false,
+        allowNull: false,
       },
-      address:{
-        type:DataTypes.STRING,
-        allowNull:false
+      address: {
+        type: DataTypes.STRING,
+        allowNull: false,
       },
       password: {
-        type:DataTypes.STRING,
-        allowNull:false,
+        type: DataTypes.STRING,
+        allowNull: false,
       },
     },
     {
@@ -50,4 +48,5 @@ import sequelize from '../config/database'
       modelName: 'User',
     }
   );
-  export default User
+  return User;
+};
