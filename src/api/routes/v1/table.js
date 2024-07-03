@@ -1,12 +1,13 @@
 import { Router } from "express";
 import { createTable, getTables, getTablesById,updatedTablesById,deleteTablesById } from "../../../services/tableServices.js";
+import {verifyToken} from "../../../middleware/auth.js";
 
 const route = Router();
 
 const tableRoutes = (app) => {
   app.use("/table", route);
 // search all table
-  route.get("/all", async (req, res, next) => {
+  route.get("/all",verifyToken, async (req, res, next) => {
     try {
       const tables = await getTables(req);
       res.status(200).json({ status: 200, listTable: tables });
@@ -17,7 +18,7 @@ const tableRoutes = (app) => {
     }
   });
   // search table by ID
-  route.get("/:id", async (req, res, next) => {
+  route.get("/:id",verifyToken, async (req, res, next) => {
     try {
       const tableId = await getTablesById(req);
       res.status(200).json({ status: 201, listTable: tableId });
