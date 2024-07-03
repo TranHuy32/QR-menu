@@ -1,5 +1,4 @@
 import db from '../models';
-
 const Category = db.Category;
 
 const  createCategory = async(req) => {
