@@ -31,15 +31,7 @@ const dishRoutes = (app) => {
         }
     });
 
-    route.get("/searchDish", async (req, res, next) => {
-        try {
-            const dishes = await searchDish(req);
-            res.status(200).json({ status: 200, data:dishes });
-        } catch (error) {
-            console.error(error);
-            res.status(500).json({ status: 500, message: "Can't search 3 Dish expensive!!!" });
-        }
-    });
+
 
     route.get("/searchDishes", async (req, res, next) => {
         try {

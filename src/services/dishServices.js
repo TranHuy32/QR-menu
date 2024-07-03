@@ -1,19 +1,28 @@
 import { Op, where } from "sequelize"
-import Dish from "../models/dish.js"
-import Category from "../models/category.js"
+import db from '../models';
 
-const createDish = async (req) => {
+const Dish = db.Dish;
+
+const createDish = async(req) => {
+    const {category_id}= req.body;
+    console.log(12345,category_id);
+    const categoryID = await Dish.findOne({
+        where:{category_id}
+    })
+    if(!categoryID) {
+        const error = new Error(
+            "Catogory already exists in the system. Please use a different category!!!!."
+          );
+          error.code = 400;
+          throw error;
+    }
     try {
-        const { name_dish } = req.body
-        const existDish = await Dish.findOne({ where: { name_dish } })
-        if (existDish) {
-            throw new Error("Mon an Da Ton Tai")
-        }
-
-        const dish = await Dish.create(req.body)
-        return dish
+        const newDish =await Dish.create(req.body)
+        return newDish
     } catch (error) {
-        throw new Error(error)
+        const err = new Error("Can't create new dish!!!");
+        error.code = 400;
+        throw error;
     }
 }
 
@@ -26,14 +35,14 @@ const getSearchDishes = async (req) => {
 
         let whereClause = {};
         if (search) {
-            whereClause.name_dish = {
+            whereClause.name = {
                 [Op.like]: `%${search}%`
             };
         }
 
         let orderClause = [];
         if (nameOrder) {
-            orderClause.push(['name_dish', nameOrder.toUpperCase() === 'DESC' ? 'DESC' : 'ASC']);
+            orderClause.push(['name', nameOrder.toUpperCase() === 'DESC' ? 'DESC' : 'ASC']);
         }
         if (priceOrder) {
             orderClause.push(['price', priceOrder.toUpperCase() === 'DESC' ? 'DESC' : 'ASC']);
