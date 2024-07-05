@@ -3,21 +3,25 @@ import db from '../models';
 
 const Dish = db.Dish;
 
-const createDish = async(req) => {
-    const {category_id}= req.body;
-    console.log(12345,category_id);
+const createDish = async (req) => {
+    const { name, price, description, category_id } = req.body
+    const { originalname } = req.file;
+
     const categoryID = await Dish.findOne({
-        where:{category_id}
+        where: { category_id }
     })
-    if(!categoryID) {
+    if (!categoryID) {
         const error = new Error(
-            "Catogory already exists in the system. Please use a different category!!!!."
-          );
-          error.code = 400;
-          throw error;
+            "The category does not exist in the system. Please use another category"
+        );
+        error.code = 400;
+        throw error;
     }
     try {
-        const newDish =await Dish.create(req.body)
+        const newDish = await Dish.create({
+            name, price, description, category_id,
+            image: `http://127.0.0.1:3000/v1/image/${originalname}`
+        })
         return newDish
     } catch (error) {
         const err = new Error("Can't create new dish!!!");
@@ -25,8 +29,6 @@ const createDish = async(req) => {
         throw error;
     }
 }
-
-
 const getSearchDishes = async (req) => {
     try {
         const { page, pageSize = 3, nameOrder, priceOrder, search } = req.query;
