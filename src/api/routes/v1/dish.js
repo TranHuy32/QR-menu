@@ -1,6 +1,7 @@
 import { Router } from "express";
-import { createDish,getSearchDishes } from "../../../services/dishServices.js";
 import { verifyToken } from "../../../middleware/auth.js";
+import upload from "../../../middleware/uploadImage.js";
+import { createDish, getSearchDishes } from "../../../services/dishServices.js";
 
 
 const route = Router();
@@ -18,11 +19,10 @@ const dishRoutes = (app) => {
             res.status(500).json({ status: 500, message: "invalid dishes" });
         }
     });
-
-    route.post('/', verifyToken, async(req, res, next) => {
+    route.post('/', upload.single('image'), verifyToken, async (req, res, next) => {
         try {
-         const newDish = await createDish(req);
-          res.status(200).json({ status: 200, newDish: newDish });
+            const newDish = await createDish(req);
+            res.status(200).json({ status: 200, newDish: newDish });
         } catch (error) {
             res.status(error.code || 500).json({
                 status: error.code || 500,
@@ -31,19 +31,15 @@ const dishRoutes = (app) => {
         }
     });
 
-
-
     route.get("/searchDishes", async (req, res, next) => {
         try {
             const reponesDish = await getSearchDishes(req);
-            res.status(200).json({ status: 200, data:reponesDish });
+            res.status(200).json({ status: 200, data: reponesDish });
         } catch (error) {
             console.error(error);
             res.status(500).json({ status: 500, message: "Can't search 3 Dish expensive!!!" });
         }
     });
-
-
 }
 export default dishRoutes
 
