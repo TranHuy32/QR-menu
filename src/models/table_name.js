@@ -3,13 +3,9 @@ import { v4 as uuidv4, v4 } from 'uuid';
 
 export default (sequelize) => {
   class Table extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
-      // define association here
+      Table.hasMany(models.Order,{ foreignKey: 'table_id'})
+
     }
   }
   Table.init(

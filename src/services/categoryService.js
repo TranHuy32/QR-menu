@@ -8,7 +8,6 @@ const  createCategory = async(req) => {
         if(existCategory){
             throw new Error("Loai Da Ton Tai")
         }
-
         const category =  await Category.create(req.body)
         return category
     } catch (error) {

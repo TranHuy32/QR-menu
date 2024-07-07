@@ -5,6 +5,8 @@ import categoryRouter from './category';
 import dishRoutes from './dish';
 import refreshTokenRoutes from './auth'
 import imageRoute from './image'
+import orderRoutes from './order'
+
 
 // any endpoints for api/{anything} will be here
 const v1 = Router();
@@ -16,4 +18,6 @@ categoryRouter(v1);
 dishRoutes(v1);
 refreshTokenRoutes(v1)
 imageRoute(v1)
+orderRoutes(v1)
+
 module.exports = v1;
