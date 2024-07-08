@@ -5,7 +5,7 @@ const Dish = db.Dish;
 
 const createDish = async (req) => {
     const { name, price, description, category_id } = req.body
-    const { originalname } = req.file;
+    const { filename } = req.file;
 
     const categoryID = await Dish.findOne({
         where: { category_id }
@@ -20,7 +20,7 @@ const createDish = async (req) => {
     try {
         const newDish = await Dish.create({
             name, price, description, category_id,
-            image: `http://127.0.0.1:3000/v1/image/${originalname}`
+            image: `http://127.0.0.1:3000/v1/image/${filename}`
         })
         return newDish
     } catch (error) {
