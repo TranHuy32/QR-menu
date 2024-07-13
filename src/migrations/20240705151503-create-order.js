@@ -15,6 +15,11 @@ module.exports = {
       notes: {
         type: Sequelize.STRING
       },
+      total_price: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        defaultValue: 0
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

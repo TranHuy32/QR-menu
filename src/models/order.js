@@ -15,7 +15,12 @@ export default (sequelize) => {
     notes:{
       type:DataTypes.STRING,
       allowNull: false,
-    }, 
+    },
+    total_price: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: 0
+    },
     table_id:{
       type: DataTypes.INTEGER,
       references:{

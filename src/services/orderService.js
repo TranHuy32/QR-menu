@@ -9,7 +9,7 @@ const Table_name = db.Table_name;
 
 
 const createOrder = async (req, res) => {
-    const { status = 'pending', notes, table_id, dishes } = req.body;
+    const { status, notes, table_id, dishes } = req.body;
 
     try {
 
@@ -18,10 +18,11 @@ const createOrder = async (req, res) => {
         }
         const existTable = await Table_name.findOne({
             where: { id: table_id }
-        }) 
+        })
         if (!existTable) {
             throw new Error("Chưa có table nao duoc chon");
         }
+        let totalPrice = 0;
 
         const dishQuantity = {};
         for (let dish of dishes) {
@@ -29,13 +30,14 @@ const createOrder = async (req, res) => {
                 dishQuantity[dish.dish_id] += dish.quantity
             } else {
                 dishQuantity[dish.dish_id] = dish.quantity
-            }
+            };
+
         }
-        for(const dish_id in dishQuantity){
-            if(dishQuantity.hasOwnProperty(dish_id)){
+        for (const dish_id in dishQuantity) {
+            if (dishQuantity.hasOwnProperty(dish_id)) {
                 const quantity = dishQuantity[dish_id];
 
-                if(quantity <= 0){
+                if (quantity <= 0) {
                     throw new Error(`Chưa có so luong mon an với id ${dish_id}`);
                 }
             }
@@ -43,25 +45,32 @@ const createOrder = async (req, res) => {
 
         for (let dish_id in dishQuantity) {
             try {
-                const existDish = await Dish.findOne({
-                    where: {
-                        id: dish_id,
-                        quantity: {
-                            [Sequelize.Op.gte]: dishQuantity[dish_id],
+                if (dishQuantity.hasOwnProperty(dish_id)) {
+                    const quantity = dishQuantity[dish_id];
+                    const existDish = await Dish.findOne({
+                        where: {
+                            id: dish_id,
+                            quantity: {
+                                [Sequelize.Op.gte]: dishQuantity[dish_id],
+                            }
                         }
-                    }
-                })
+                    })
 
-                if (!existDish) {
-                    throw new Error(`Món ăn với id ${dish_id} không tồn tại hoặc bị quá số lượng cho phép`);
-                }
-                await Dish.update({
-                    quantity: Sequelize.literal(`quantity - ${dishQuantity[dish_id]}`),
-                }, {
-                    where: {
-                        id: dish_id,
+                    if (!existDish) {
+                        throw new Error(`Món ăn với id ${dish_id} không tồn tại hoặc bị quá số lượng cho phép`);
                     }
-                })
+                    // Tính tổng giá tiền
+                    totalPrice += existDish.price * quantity;
+
+                    await Dish.update({
+                        quantity: Sequelize.literal(`quantity - ${dishQuantity[dish_id]}`),
+                    }, {
+                        where: {
+                            id: dish_id,
+                        }
+                    })
+                    console.log(22222222, totalPrice);
+                }
             } catch (error) {
                 throw new Error(error.message);
             }
@@ -71,6 +80,7 @@ const createOrder = async (req, res) => {
             status,
             notes,
             table_id,
+            total_price: totalPrice  // Lưu tổng giá vào cơ sở dữ liệu
         });
 
         for (let dish of dishes) {
