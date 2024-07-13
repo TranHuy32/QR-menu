@@ -19,7 +19,7 @@ const dishRoutes = (app) => {
             res.status(500).json({ status: 500, message: "invalid dishes" });
         }
     });
-    route.post('/', upload.single('image'), verifyToken, async (req, res, next) => {
+    route.post('/',verifyToken,upload.single('image'), async (req, res, next) => {
         try {
             const newDish = await createDish(req);
             res.status(200).json({ status: 200, newDish: newDish });
