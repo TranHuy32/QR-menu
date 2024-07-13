@@ -2,14 +2,13 @@ import { Op, where } from "sequelize"
 import db from '../models';
 
 const Dish = db.Dish;
+const Category = db.Category
 
 const createDish = async (req) => {
-    const { name, price, description, category_id } = req.body
+    const { name, price, description, category_id ,quantity } = req.body
     const { filename } = req.file;
 
-    const categoryID = await Dish.findOne({
-        where: { category_id }
-    })
+    const categoryID = await Category.findByPk(category_id)
     if (!categoryID) {
         const error = new Error(
             "The category does not exist in the system. Please use another category"
@@ -18,8 +17,9 @@ const createDish = async (req) => {
         throw error;
     }
     try {
+        console.log(4444444444444);
         const newDish = await Dish.create({
-            name, price, description, category_id,
+            name, price, description, quantity, category_id,
             image: `http://127.0.0.1:3000/v1/image/${filename}`
         })
         return newDish
@@ -29,6 +29,31 @@ const createDish = async (req) => {
         throw error;
     }
 }
+// const updatedDish = async (req) => {
+//     try{
+//         // const{id} = req.params;
+//         const dishQuantity = {};
+//         for (let dish of dishes) {
+//             if (dishQuantity[dish.dish_id]) {
+//                 dishQuantity[dish.dish_id] += dish.quantity
+//             } else {
+//                 dishQuantity[dish.dish_id] = dish.quantity
+//             }
+//         }
+//         const updatedRows = await Dish.update(req.body, {
+//             where: {id}
+//         });
+
+
+//         if(updatedRows[0] === 0){
+//             throw new Error('Table not found');
+//         }
+//         return {message: 'Table updated successfull'};
+
+//     }catch(error){
+//         throw new Error(error);
+//     }
+// }
 const getSearchDishes = async (req) => {
     try {
         const { page, pageSize = 3, nameOrder, priceOrder, search } = req.query;

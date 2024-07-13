@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getOrder, updateOrder, deleteOrder, createOrder } from "../../../services/orderService.js";
+import { getOrder, updateOrder, createOrder } from "../../../services/orderService.js";
 
 const route = Router();
 const orderRoutes = (app) => {
@@ -33,6 +33,32 @@ const orderRoutes = (app) => {
         }
 
     })
+    route.put("/:id/status", async (req, res, next) => {
+        try {
+            const orders = await updateOrder(req);
+            res.status(200).json({ status: 202, listTable: orders.message });
+        } catch (error) {
+            //   return next(err);
+            console.error(error);
+            res.status(500).json({ status: 500, message: "invalid updatedTableId" });
+        }
+    });
+    // route.put("/updateOrder", async (req, res, next) => {
+    //     const { order_id } = req.body;
+    //     try {
+
+    //         const orders = await updateStatusOrder(req);
+    //         res.status(200).json({ status: 200, listOrder: orders });
+    //         // Thêm các Dish vào Order
+
+
+    //     } catch (error) {
+    //         console.error(error);
+    //         res.status(500).json({ status: 500, message: "invalid order" });
+
+    //     }
+
+    // })
 
 }
 export default orderRoutes

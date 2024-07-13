@@ -5,7 +5,7 @@ export default (sequelize) => {
   class Table extends Model {
     static associate(models) {
       Table.hasMany(models.Order,{ foreignKey: 'table_id'})
-
+      Table.hasMany(models.Employee,{ foreignKey: 'table_id'})
     }
   }
   Table.init(
