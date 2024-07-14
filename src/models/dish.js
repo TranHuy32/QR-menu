@@ -26,8 +26,8 @@ export default (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      quantity:{
-        type: DataTypes.NUMBER,
+      quantity: {
+        type: DataTypes.STRING,
         allowNull: false,
       },
       category_id: {

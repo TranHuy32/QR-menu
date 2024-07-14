@@ -2,13 +2,14 @@ import { Op, where } from "sequelize"
 import db from '../models';
 
 const Dish = db.Dish;
-const Category = db.Category;
+
+const Category = db.Category
 
 const createDish = async (req) => {
-    const { name, price, description, category_id,quantity } = req.body
+    const { name, price, description, category_id ,quantity } = req.body
     const { filename } = req.file;
 
-    const categoryID = await Category.findByPk(category_id);
+    const categoryID = await Category.findByPk(category_id)
     if (!categoryID) {
         const error = new Error(
             "The category does not exist in the system. Please use another category"
@@ -18,7 +19,7 @@ const createDish = async (req) => {
     }
     try {
         const newDish = await Dish.create({
-            name, price, description, category_id,quantity,
+            name, price, description, quantity, category_id,
             image: `http://127.0.0.1:3000/v1/image/${filename}`
         })
         return newDish
@@ -28,6 +29,7 @@ const createDish = async (req) => {
         throw error;
     }
 }
+
 const getSearchDishes = async (req) => {
     try {
         const { page, pageSize = 3, nameOrder, priceOrder, search } = req.query;
