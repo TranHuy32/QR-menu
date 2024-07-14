@@ -6,6 +6,7 @@ import dishRoutes from './dish';
 import refreshTokenRoutes from './auth'
 import imageRoute from './image'
 import orderRoutes from './order'
+import optionRoutes from './option';
 
 
 // any endpoints for api/{anything} will be here
@@ -19,5 +20,6 @@ dishRoutes(v1);
 refreshTokenRoutes(v1)
 imageRoute(v1)
 orderRoutes(v1)
+optionRoutes(v1)
 
 module.exports = v1;

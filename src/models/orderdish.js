@@ -5,6 +5,7 @@ export default (sequelize) => {
     static associate(models) {
       // Orderdish.belongsToMany(models.Order, { foreignKey: 'order_id',as:'dishes' })
       // Orderdish.belongsToMany(models.Dish, { foreignKey: 'dish_id',as:'orders' })
+      Orderdish.belongsTo(models.Option, { foreignKey: 'option_id' });
     }
   }
   Orderdish.init({
@@ -25,7 +26,16 @@ export default (sequelize) => {
         model: 'Orders',
         key: 'id'
       }
+    },
+    option_id: {
+      type:DataTypes.INTEGER,
+      references: {
+        model: 'Options',
+        key: 'id'
+      }
+
     }
+
   }, {
     sequelize,
     modelName: 'Orderdish',
