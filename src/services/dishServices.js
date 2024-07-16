@@ -2,13 +2,12 @@ import { Op, where } from "sequelize"
 import db from '../models';
 
 const Dish = db.Dish;
-
 const Category = db.Category
+const Option = db.Option
 
 const createDish = async (req) => {
-    const { name, price, description, category_id ,quantity } = req.body
+    const { name, price, description, category_id, quantity } = req.body
     const { filename } = req.file;
-
     const categoryID = await Category.findByPk(category_id)
     if (!categoryID) {
         const error = new Error(
@@ -69,5 +68,69 @@ const getSearchDishes = async (req) => {
         throw new Error(error.message);
     }
 };
+const updateDish = async (req) => {
+    const { id } = req.query
+    const { name, price, description, category_id, quantity, options } = req.body;
+    const { filename } = req.file;
 
-export { createDish,getSearchDishes }
+    const dish = await Dish.findByPk(id);
+    if (!dish) {
+        const error = new Error("Dish doesnt existed!!!")
+        error.code = 400;
+        throw error;
+    }
+    const category = await Category.findByPk(category_id);
+    if (!category) {
+        const error = new Error("Cateogory doesnt existed!!!")
+        error.code = 400;
+        throw error;
+    }
+    // const existingOptions = await Option.findAll({
+    //     where: {
+    //         [Op.or]: options.map(option => ({
+    //             name: option.name,
+    //             price: option.price
+    //         }))
+    //     }
+    // });
+    // if (existingOptions.length > 0) {
+    //     const error = new Error("OPTION ALREADY EXISTS, CREATE ANOTHER OPTION");
+    //     error.code = 400;
+    //     throw error;
+    // }
+
+    try {
+        const updateDish = await Dish.update({
+            name, price, description, quantity, category_id,
+            image: `http://127.0.0.1:3000/v1/image/${filename}`
+        },
+            {
+                where: { id }
+            }
+
+        )
+        if (options && options.length > 0) {
+            await Promise.all(
+                options.map(async (option) => {
+                    await Option.create({
+                        name: option.name,
+                        price: option.price,
+                        category_id: category_id,
+                    });
+                })
+            );
+        }
+        return {
+            name, price, description, quantity, category_id,
+            image:`http://127.0.0.1:3000/v1/image/${filename}`,
+            options
+        }
+
+    } catch (error) {
+        const err = new Error("Can't update dish");
+        error.code = 400;
+        throw error;
+    }
+}
+
+export { createDish, getSearchDishes, updateDish }

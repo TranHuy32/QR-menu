@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { verifyToken } from "../../../middleware/auth.js";
 import upload from "../../../middleware/uploadImage.js";
-import { createDish, getSearchDishes } from "../../../services/dishServices.js";
+import { createDish, getSearchDishes,updateDish } from "../../../services/dishServices.js";
 
 
 const route = Router();
@@ -40,6 +40,16 @@ const dishRoutes = (app) => {
             res.status(500).json({ status: 500, message: "Can't search 3 Dish expensive!!!" });
         }
     });
+    route.put('/',upload.single('image'), async(req, res, next) => {
+        try {
+            const newDish = await updateDish(req)
+            res.status(200).json({ status: 200, newDish: newDish });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ status: 500, message: "Update unsuccessfully" });
+        }
+    })
+
 }
 export default dishRoutes
 
