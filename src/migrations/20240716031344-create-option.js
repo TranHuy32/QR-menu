@@ -9,13 +9,24 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      dish_id: {
-        type: Sequelize.INTEGER,
+      name: {
+        type: Sequelize.STRING,
         allowNull: false,
       },
       price: {
         type: Sequelize.STRING,
         allowNull: false,
+
+      },
+      category_id: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        references:{
+          model:'Categories',
+          key:'id'
+        },
+        onUpdate:'CASCADE',
+        onDelete:'SET NULL'
       },
       createdAt: {
         allowNull: false,

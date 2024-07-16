@@ -161,7 +161,7 @@ const getOrders = async (req) => {
 //get order query id 
 const getDetailtOrder = async (req) => {
     const { id } = req.query;
-    const idOrder = await Order.findOne({
+    const order = await Order.findOne({
         where: { id },
         include: [
             {
@@ -174,11 +174,12 @@ const getDetailtOrder = async (req) => {
             },
         ],
     })
-    if (!idOrder) {
+    if (!order) {
         const error = new Error("Order doesnt existed!!!")
         error.code = 400;
         throw error;
     }
+    return order
 }
 
 const updateOrder = async (req, res) => {
