@@ -15,6 +15,30 @@ module.exports = {
       notes: {
         type: Sequelize.STRING
       },
+      table_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'Table_names',
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL'
+      },
+      bill_id: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'Bills',
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL'
+      },
+      total_prcie:
+      {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue:0
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
@@ -26,15 +50,6 @@ module.exports = {
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
 
-      },
-      table_id: {
-        type: Sequelize.INTEGER,
-        references:{
-          model:'Table_names',
-          key:'id'
-        },
-        onUpdate:'CASCADE',
-        onDelete:'SET NULL'
       }
     });
   },

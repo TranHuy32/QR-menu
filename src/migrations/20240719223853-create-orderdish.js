@@ -30,6 +30,15 @@ module.exports = {
         onUpdate:'CASCADE',
         onDelete:'SET NULL'
       },
+      option_id:{
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'Options',
+          key: 'id'
+        },
+        onUpdate:'CASCADE',
+        onDelete:'SET NULL'
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
@@ -44,3 +53,4 @@ module.exports = {
     await queryInterface.dropTable('Orderdishes');
   }
 };
+
