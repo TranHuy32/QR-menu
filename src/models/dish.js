@@ -36,8 +36,8 @@ export default (sequelize) => {
           model: 'Categories',
           key: 'id',
         },
-        // onUpdate: 'CASCADE',
-        // onDelete: 'SET NULL',
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL',
       },
     },
     {

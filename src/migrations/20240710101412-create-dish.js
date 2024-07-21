@@ -40,11 +40,6 @@ module.exports = {
         allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       },
-      deleteAt: {
-        type: Sequelize.DATE,
-        // allowNull:false,
-        // defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
-      },
       category_id: {
       type: Sequelize.INTEGER,
       references:{

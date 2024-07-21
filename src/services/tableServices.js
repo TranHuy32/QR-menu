@@ -1,6 +1,6 @@
 import db from '../models';
 
-const Table = db.Table;
+const Table = db.Table_name;
 
 const  createTable = async(req) => {
     try {
