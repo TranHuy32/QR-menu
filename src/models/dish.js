@@ -4,7 +4,11 @@ export default (sequelize) => {
   class Dish extends Model {
     static associate(models) {
       Dish.belongsTo(models.Category, { foreignKey: 'category_id' });
-      Dish.belongsToMany(models.Order,{through: models.Orderdish,foreignKey:'dish_id',as:'orders'})
+      Dish.belongsToMany(models.Order, {
+        through: models.Orderdish,
+        foreignKey: 'dish_id',
+        as: 'orders'
+    });
     }
   }
 

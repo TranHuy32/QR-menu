@@ -3,10 +3,9 @@ import { Model, DataTypes } from 'sequelize';
 export default (sequelize) => {
   class Orderdish extends Model {
     static associate(models) {
-      Orderdish.belongsTo(models.Order, { foreignKey: 'order_id',as:'dishes' })
-      Orderdish.belongsTo(models.Dish, { foreignKey: 'dish_id',as:'orders' })
-      Orderdish.belongsTo(models.Option, { foreignKey: 'option_id' });
-
+        Orderdish.belongsTo(models.Dish, { foreignKey: 'dish_id', as: 'dishes' });
+        Orderdish.belongsTo(models.Option, { foreignKey: 'option_id', as: 'options' });
+        Orderdish.belongsTo(models.Order, { foreignKey: 'order_id', as: 'orders' });
     }
   }
   Orderdish.init({
@@ -17,21 +16,21 @@ export default (sequelize) => {
     dish_id: {
       type: DataTypes.INTEGER,
       references: {
-        model: 'Dishes',
+        model: 'Dish',
         key: 'id'
       }
     },
     order_id: {
       type: DataTypes.INTEGER,
       references: {
-        model: 'Orders',
+        model: 'Order',
         key: 'id'
       }
     },
     option_id: {
       type:DataTypes.INTEGER,
       references: {
-        model: 'Options',
+        model: 'Option',
         key: 'id'
       }
 
