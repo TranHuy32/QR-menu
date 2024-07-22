@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import "dotenv/config";
-import db from '../models';
+import db from '../models/index.js';
 import { hashPassWord, passwordMatch } from "./commonService.js";
 
 const User = db.User;

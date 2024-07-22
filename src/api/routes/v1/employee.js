@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createEmployee} from "../../../services/employeeService.js";
+import { createEmployee} from "../../../services/employeeServices.js";
 import {verifyToken} from "../../../middleware/auth.js";
 
 const route = Router();

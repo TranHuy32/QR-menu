@@ -1,5 +1,5 @@
 import { Router } from "express";
-import {createCategory,getCategorys,updatedCategory  } from "../../../services/categoryService.js";
+import {createCategory,getCategorys,updatedCategory  } from "../../../services/categoryServices.js";
 import {verifyToken} from "../../../middleware/auth.js";
 
 const route = Router();
