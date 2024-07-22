@@ -4,10 +4,20 @@ export default (sequelize) => {
   class Order extends Model {
     static associate(models) {
       Order.belongsTo(models.Table_name, { foreignKey: 'table_id' });
-      Order.belongsToMany(models.Dish,{through: models.Orderdish,foreignKey:'order_id',as:'dishes'});
+      Order.belongsToMany(models.Dish, {
+        through: models.Orderdish,
+        foreignKey: 'order_id',
+        as: 'dishes'
+      });
     }
   }
   Order.init({
+    id: {
+      allowNull: false,
+      autoIncrement: true,
+      primaryKey: true,
+      type: DataTypes.INTEGER
+    },
     status:{
       type:DataTypes.STRING,
       allowNull: false,
@@ -16,16 +26,28 @@ export default (sequelize) => {
       type:DataTypes.STRING,
       allowNull: false,
     }, 
+    total_price:{
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue:0
+    },
     table_id:{
       type: DataTypes.INTEGER,
       references:{
         model: 'Table_names', 
         key:'id'
       }
-    } 
+    },
+    bill_id:{
+      type:DataTypes.INTEGER,
+      references:{
+        model: 'Bills', 
+        key:'id'
+      }
+    }
   }, {
     sequelize,
     modelName: 'Order',
   });
   return Order;
-};
+}

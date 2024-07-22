@@ -33,9 +33,9 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'SET NULL'
       },
-      total_prcie:
+      total_price:
       {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
         allowNull: false,
         defaultValue:0
       },

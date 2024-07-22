@@ -22,8 +22,8 @@ const orderRoutes = (app) => {
         // const { status, notes, total_price, table_id } = req.body;
         try {
 
-            const orders = await createOrder(req);
-            res.status(200).json({ status: 200, listOrder: orders });
+            const order = await createOrder(req);
+            res.status(200).json({ status: 200, Order: order });
 
         } catch (error) {
             console.error(error);

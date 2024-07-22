@@ -1,85 +1,90 @@
 import { Sequelize, where, Op, ENUM } from "sequelize";
 import db from "../models";
-import orderdish from "../models/orderdish";
+// import orderdish from "../models/orderdish";
 
 const Order = db.Order;
 const Dish = db.Dish;
 const Orderdish = db.Orderdish;
 const Table_name = db.Table_name;
+const Option = db.Option;
 
 const createOrder = async (req, res) => {
     const { status, notes, table_id, dishes } = req.body;
-
     try {
-
         if (!dishes || dishes.length === 0) {
             throw new Error("Chưa có món ăn nào được chọn.");
         }
         const existTable = await Table_name.findOne({
-            where: { id: table_id }
-        })
+            where: { id: table_id },
+        });
         if (!existTable) {
             throw new Error("Chưa có table nao duoc chon");
         }
         let totalPrice = 0;
 
-        const dishQuantity = {};
+        const dishQuantity = {}
         for (let dish of dishes) {
-            if (dishQuantity[dish.dish_id]) {
-                dishQuantity[dish.dish_id] += dish.quantity
+            const { dish_id, quantity, option_id } = dish;
+
+            if (dishQuantity[dish_id]) {
+                dishQuantity[dish_id].quantity += quantity;
             } else {
-                dishQuantity[dish.dish_id] = dish.quantity
-            };
-
-        }
-        for (const dish_id in dishQuantity) {
-            if (dishQuantity.hasOwnProperty(dish_id)) {
-                const quantity = dishQuantity[dish_id];
-
-                if (quantity <= 0) {
-                    throw new Error(`Chưa có so luong mon an với id ${dish_id}`);
-                }
+                dishQuantity[dish_id] = {
+                    id: dish_id,
+                    quantity: quantity,
+                    option_id: option_id
+                };
             }
         }
-
-        for (let dish_id in dishQuantity) {
+        for (const dish_id in dishQuantity) {
             try {
                 if (dishQuantity.hasOwnProperty(dish_id)) {
-                    const quantity = dishQuantity[dish_id];
+                    const quantity = dishQuantity[dish_id].quantity;
+                    const option_id = dishQuantity[dish_id].option_id;
                     const existDish = await Dish.findOne({
                         where: {
                             id: dish_id,
                             quantity: {
-                                [Sequelize.Op.gte]: dishQuantity[dish_id],
+                                [Sequelize.Op.gte]: quantity
                             }
                         }
-                    })
+                    });
 
                     if (!existDish) {
                         throw new Error(`Món ăn với id ${dish_id} không tồn tại hoặc bị quá số lượng cho phép`);
                     }
-                    // Tính tổng giá tiền
-                    totalPrice += existDish.price * quantity;
+                    const existOption = await Option.findOne({
+                        where: {
+                            id: option_id
+                        }
+                    });
 
+                    if (!existOption) {
+                        throw new Error(`Option với id ${option_id} không tồn tại`);
+                    }
+                    totalPrice += (existDish.price * quantity) + (existOption.price * quantity)
+                    console.log('Total price after calculation:', totalPrice);
+
+                    // Cập nhật quantity của Dish sau khi đặt hàng
                     await Dish.update({
-                        quantity: Sequelize.literal(`quantity - ${dishQuantity[dish_id]}`),
+                        quantity: Sequelize.literal(`quantity - ${quantity}`),
                     }, {
                         where: {
                             id: dish_id,
                         }
-                    })
-                    console.log(22222222, totalPrice);
+                    });
+
+                    console.log(`Updated quantity of dish ${dish_id} after order`);
                 }
             } catch (error) {
                 throw new Error(error.message);
             }
         }
-
         const order = await Order.create({
             status,
             notes,
             table_id,
-            total_price: totalPrice  // Lưu tổng giá vào cơ sở dữ liệu
+            total_price: totalPrice,
         });
 
         for (let dish of dishes) {
@@ -88,27 +93,24 @@ const createOrder = async (req, res) => {
                     where: {
                         order_id: order.id,
                         dish_id: dish.dish_id,
-                    }
+                        option_id: dish.option_id
+                    },
                 });
-
                 if (existingOrderDish) {
                     existingOrderDish.quantity += dish.quantity;
                     await existingOrderDish.save();
-
                 } else {
                     await Orderdish.create({
                         order_id: order.id,
                         dish_id: dish.dish_id,
+                        option_id: dish.option_id,
                         quantity: dish.quantity,
-                    })
-                };
-
+                    });
+                }
             } catch (error) {
                 throw new Error(error.message);
             }
         }
-
-
         return order;
     } catch (error) {
         throw new Error(error);
@@ -116,10 +118,10 @@ const createOrder = async (req, res) => {
 };
 
 const getOrders = async (req) => {
-    const { page, pageSize, status, date } = req.query; 
+    const { page, pageSize, status, date } = req.query;
     let conditions = {};
     if (status) {
-        conditions.status = status; 
+        conditions.status = status;
     }
     if (date) {
         const startDate = new Date(`${date}T00:00:00.000Z`);
@@ -136,82 +138,80 @@ const getOrders = async (req) => {
             include: [
                 {
                     model: Dish,
-                    as: 'dishes',
+                    as: "dishes",
                     through: {
                         model: Orderdish,
-                        as: 'orderdishes'
+                        as: "orderdishes",
                     },
                 },
             ],
             offset,
-            limit
+            limit,
         });
-         return {
+        return {
             numberOfOrder: orders.length,
-            pagesNumber: Math.ceil(orders.length / limit), 
+            pagesNumber: Math.ceil(orders.length / limit),
             currentPage: orders,
         };
-
     } catch (error) {
         console.log(222222222, error);
         throw new Error(error);
     }
-}
+};
 
-//get order query id 
+//get order query id
 const getDetailtOrder = async (req) => {
     const { id } = req.query;
-    const order = await Order.findOne({
-        where: { id },
-        include: [
-            {
-                model: Dish,
-                as: 'dishes',
-                through: {
-                    model: Orderdish,
-                    as: 'orderdishes'
+    console.log(1111111111,id);
+
+    try {
+        const order  = await Order.findOne({
+            where: { id: id },
+            include: [
+                { model: Dish, 
+                    as: 'dishes',
+                    through: {
+                        model:Orderdish,
+                        as:'orderdishes'
+                    }      
                 },
-            },
-        ],
-    })
-    if (!order) {
-        const error = new Error("Order doesnt existed!!!")
-        error.code = 400;
+            ],
+        });
+        console.log(2222222222,order);
+
+        if (!order) {
+            throw new Error(`Order  with id ${id} not found`);
+        }
+        return order;
+    } catch (error) {
         throw error;
     }
-    return order
-}
+};
 
 const updateOrder = async (req, res) => {
-
     try {
         const { id } = req.params;
         const { status } = req.body;
         if (!status) {
-            return res.status(400).json({ message: 'Status is required' });
+            return res.status(400).json({ message: "Status is required" });
         }
         const updatedRows = await Order.update(req.body, {
-            where: { id }
+            where: { id },
         });
 
-
-
         if (updatedRows[0] === 0) {
-            throw new Error('Order not found');
+            throw new Error("Order not found");
         }
-        return { message: 'Order updated successfull' };
-
+        return { message: "Order updated successfull" };
     } catch (error) {
         throw new Error(error);
     }
+};
 
-}
-
-export { createOrder, getOrders, getDetailtOrder,updateOrder };
+export { createOrder, getOrders, getDetailtOrder, updateOrder };
 
 // PENDING: 'pending',
 // PREPARING: 'preparing',
 // COMPLETED: 'completed',
 // CANCELLED: 'cancelled'
 // enum
-

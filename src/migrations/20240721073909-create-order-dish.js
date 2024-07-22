@@ -53,4 +53,3 @@ module.exports = {
     await queryInterface.dropTable('Orderdishes');
   }
 };
-
