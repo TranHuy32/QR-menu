@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { verifyRefreshToken } from "../../../middleware/auth.js"
-import { register, login, createNewToken } from "../../../services/authService.js"
+import { register, login, createNewToken } from "../../../services/authServices.js"
 
 const route = Router();
 const refreshTokenRoutes = (app) => {
