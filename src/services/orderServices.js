@@ -1,6 +1,6 @@
 import { Sequelize, where, Op, ENUM } from "sequelize";
 import db from "../models";
-// import orderdish from "../models/orderdish";
+import { Status } from "../const/const";
 
 const Order = db.Order;
 const Dish = db.Dish;
@@ -9,7 +9,8 @@ const Table_name = db.Table_name;
 const Option = db.Option;
 
 const createOrder = async (req, res) => {
-    const { status, notes, table_id, dishes } = req.body;
+    const status  = Status.PENDING
+    const { notes, table_id, dishes } = req.body;
     try {
         if (!dishes || dishes.length === 0) {
             throw new Error("Chưa có món ăn nào được chọn.");
