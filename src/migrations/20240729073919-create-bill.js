@@ -9,9 +9,19 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      user_id: {
+      employee_id: {
         type: Sequelize.INTEGER,
+        references: {
+          model: 'Employees',
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL'
+      },
+      total_price:{
+        type: Sequelize.STRING,
         allowNull: false,
+        defaultValue:0
       },
       customer: {
         type: Sequelize.STRING,

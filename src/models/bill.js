@@ -2,19 +2,23 @@ import { Model, DataTypes } from 'sequelize';
 
 export default (sequelize) => {
   class Bill extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
-      Bill.hasMany(models.Order, { foreignKey: 'order_id' })
+      Bill.hasMany(models.Order, { foreignKey: 'bill_id' })
     }
   }
   Bill.init({
-    user_id: {
+    employee_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      references:{
+        model: 'Employees', 
+        key:'id'
+      }
+    },
+    total_price:{
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue:0
     },
     customer: {
       type: DataTypes.STRING,

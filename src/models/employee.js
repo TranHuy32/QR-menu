@@ -7,24 +7,25 @@ export default (sequelize) => {
     }
   }
   Employee.init({
-    note:{
-      type:DataTypes.STRING,
+    note: {
+      type: DataTypes.STRING,
       allowNull: false,
     },
-    status:{
-      type:DataTypes.STRING,
+    status: {
+      type: DataTypes.STRING,
       allowNull: false,
     },
-    table_id:{
+    table_id: {
       type: DataTypes.INTEGER,
-      references:{
-        model: 'Table_names', 
-        key:'id'
+      references: {
+        model: 'Table_names',
+        key: 'id'
       }
-    }  
+    }
   }, {
     sequelize,
     modelName: 'Employee',
   });
   return Employee;
 };
+

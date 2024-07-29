@@ -12,7 +12,7 @@ module.exports = {
       note: {
         type: Sequelize.STRING
       },
-      status:{
+      status: {
         type: Sequelize.STRING
       },
       createdAt: {
@@ -25,12 +25,12 @@ module.exports = {
       },
       table_id: {
         type: Sequelize.INTEGER,
-        references:{
-          model:'Table_names',
-          key:'id'
+        references: {
+          model: 'Table_names',
+          key: 'id'
         },
-        onUpdate:'CASCADE',
-        onDelete:'SET NULL'
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL'
       }
     });
   },

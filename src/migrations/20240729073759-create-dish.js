@@ -55,3 +55,4 @@ module.exports = {
     await queryInterface.dropTable('Dishes');
   }
 };
+
