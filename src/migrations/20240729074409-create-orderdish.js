@@ -18,8 +18,8 @@ module.exports = {
           model: 'Dishes',
           key: 'id'
         },
-        onUpdate:'CASCADE',
-        onDelete:'SET NULL'
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL'
       },
       order_id: {
         type: Sequelize.INTEGER,
@@ -27,17 +27,17 @@ module.exports = {
           model: 'Orders',
           key: 'id'
         },
-        onUpdate:'CASCADE',
-        onDelete:'SET NULL'
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL'
       },
-      option_id:{
+      option_id: {
         type: Sequelize.INTEGER,
         references: {
           model: 'Options',
           key: 'id'
         },
-        onUpdate:'CASCADE',
-        onDelete:'SET NULL'
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL'
       },
       createdAt: {
         allowNull: false,

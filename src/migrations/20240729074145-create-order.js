@@ -15,6 +15,10 @@ module.exports = {
       notes: {
         type: Sequelize.STRING
       },
+      phone_number:{
+        type: Sequelize.STRING,
+        allowNull: false
+      },
       table_id: {
         type: Sequelize.INTEGER,
         references: {

@@ -8,9 +8,13 @@ const Orderdish = db.Orderdish;
 const Table_name = db.Table_name;
 const Option = db.Option;
 
-const createOrder = async (req, res) => {
+const createOrder = async (req) => {
+    console.log(1111111111111,req.body);
     const status  = Status.PENDING
-    const { notes, table_id, dishes } = req.body;
+    const { notes, phone_number, table_id, dishes } = req.body;
+    if(!phone_number) {
+        throw new Error("Hãy xin thông tin của khách hàng!!!");
+    }
     try {
         if (!dishes || dishes.length === 0) {
             throw new Error("Chưa có món ăn nào được chọn.");
@@ -84,6 +88,7 @@ const createOrder = async (req, res) => {
         const order = await Order.create({
             status,
             notes,
+            phone_number,
             table_id,
             total_price: totalPrice,
         });
@@ -164,31 +169,31 @@ const getOrders = async (req) => {
 const getDetailtOrder = async (req) => {
     const { id } = req.query;
     console.log(1111111111,id);
-
+  
     try {
         const order  = await Order.findOne({
-            where: { id: id },
-            include: [
+        where: { id: id },
+        include: [
                 { model: Dish, 
-                    as: 'dishes',
+            as: 'dishes',
                     through: {
-                        model:Orderdish,
-                        as:'orderdishes'
-                    }      
+                model:Orderdish,
+                as:'orderdishes'
+          }
                 },
-            ],
-        });
-        console.log(2222222222,order);
-
-        if (!order) {
-            throw new Error(`Order  with id ${id} not found`);
-        }
-        return order;
+        ],
+      });
+      console.log(2222222222, order);
+  
+      if (!order) {
+        throw new Error(`Order with id ${id} not found`);
+      }
+      return order;
     } catch (error) {
-        throw error;
+        throw new Error(error);
     }
-};
-
+  };
+  
 const updateOrder = async (req, res) => {
     try {
         const { id } = req.params;

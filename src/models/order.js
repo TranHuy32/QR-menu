@@ -4,6 +4,7 @@ export default (sequelize) => {
   class Order extends Model {
     static associate(models) {
       Order.belongsTo(models.Table_name, { foreignKey: 'table_id' });
+      Order.belongsTo(models.Bill, {foreignKey:'bill_id'})
       Order.belongsToMany(models.Dish, {
         through: models.Orderdish,
         foreignKey: 'order_id',
@@ -26,6 +27,11 @@ export default (sequelize) => {
       type:DataTypes.STRING,
       allowNull: false,
     }, 
+    phone_number:{
+      type:DataTypes.STRING,
+      allowNull:false
+
+    },
     total_price:{
       type: DataTypes.STRING,
       allowNull: false,
