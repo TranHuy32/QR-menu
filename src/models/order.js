@@ -3,7 +3,7 @@ import { Model, DataTypes } from 'sequelize';
 export default (sequelize) => {
   class Order extends Model {
     static associate(models) {
-      Order.belongsTo(models.Table_name, { foreignKey: 'table_id' });
+      Order.belongsTo(models.Table_name, { foreignKey: 'table_id', as: 'table' });
       Order.belongsTo(models.Bill, {foreignKey:'bill_id'})
       Order.belongsToMany(models.Dish, {
         through: models.Orderdish,
