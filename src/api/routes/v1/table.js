@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createTable, getTables, getTablesById,updatedTablesById,deleteTablesById } from "../../../services/tableServices.js";
+import { createTable, getTables, getTablesById,updatedTablesById,deleteTablesById, activeByUuid } from "../../../services/tableServices.js";
 import {verifyToken} from "../../../middleware/auth.js";
 
 const route = Router();
@@ -7,7 +7,7 @@ const route = Router();
 const tableRoutes = (app) => {
   app.use("/table", route);
 // search all table
-  route.get("/all",verifyToken, async (req, res, next) => {
+  route.get("/all", async (req, res, next) => {
     try {
       const tables = await getTables(req);
       res.status(200).json({ status: 200, listTable: tables });
@@ -17,8 +17,18 @@ const tableRoutes = (app) => {
       res.status(500).json({ status: 500, message: "invalid tables" });
     }
   });
-  // search table by ID
-  route.get("/:id",verifyToken, async (req, res, next) => {
+  // search table by uuid active
+  route.patch("/uuid", async (req, res, next) => {
+    try {
+      const tableId = await activeByUuid(req);
+      res.status(200).json({ status: 201, listTable: tableId });
+    } catch (error) {
+      //   return next(err);
+      console.error(error);
+      res.status(500).json({ status: 500, message: "invalid tableId" });
+    }
+  });
+  route.get("/:id", async (req, res, next) => {
     try {
       const tableId = await getTablesById(req);
       res.status(200).json({ status: 201, listTable: tableId });

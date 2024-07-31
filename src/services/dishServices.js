@@ -29,10 +29,11 @@ const createDish = async (req) => {
         throw error;
     }
 }
+// const getDishbyname
 
 const getSearchDishes = async (req) => {
     try {
-        const { page, pageSize = 3, nameOrder, priceOrder, search } = req.query;
+        const { page = 1 , pageSize = 10, nameOrder, priceOrder, search } = req.query;
         const offset = (page - 1) * pageSize;
         const limit = parseInt(pageSize);
 

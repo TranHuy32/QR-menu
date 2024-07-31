@@ -6,6 +6,7 @@ import { createDish, getSearchDishes } from "../../../services/dishServices.js";
 
 const route = Router();
 
+
 const dishRoutes = (app) => {
     app.use("/dish", route);
     // search all dish

@@ -1,16 +1,17 @@
+import { where } from 'sequelize';
 import db from '../models';
 
-const Table = db.Table;
+const Table_name = db.Table_name;
 
 const  createTable = async(req) => {
     try {
         const {name} = req.body
-        const existTable = await Table.findOne({where:{name}})
+        const existTable = await Table_name.findOne({where:{name}})
         if(existTable){
             throw new Error("Ban Da Ton Tai")
         }
 
-        const table =  await Table.create(req.body)
+        const table =  await Table_name.create(req.body)
         return table
     } catch (error) {
         throw new Error(error)
@@ -18,7 +19,7 @@ const  createTable = async(req) => {
 }
 const getTables  = async(req) => {
     try {
-        const tables = await Table.findAll(req.body)
+        const tables = await Table_name.findAll(req.body)
         return tables
 
     } catch (error) {
@@ -28,7 +29,7 @@ const getTables  = async(req) => {
 const getTablesById = async (req) => {
     try{
         const{id} = req.params;
-        const tableId = await Table.findByPk(id);
+        const tableId = await Table_name.findByPk(id);
         if(!tableId){
             throw new Error('Table not found')
         }
@@ -38,10 +39,26 @@ const getTablesById = async (req) => {
         throw new Error(error);
     }
 }
+const activeByUuid = async (req) => {
+    try{
+        console.log(111111);
+        const {uuid,status} = req.body;
+        const tableUuid = await Table_name.findOne({where:{uuid}})
+        if(!tableUuid){
+            throw new Error('search Table by uuid not found')
+        }
+        tableUuid.active = status;
+        await tableUuid.save();
+        return tableUuid
+    }catch(error){
+        throw new Error(error);
+
+    }
+}
 const updatedTablesById = async (req) => {
     try{
         const{id} = req.params;
-        const updatedRows = await Table.update(req.body, {
+        const updatedRows = await Table_name.update(req.body, {
             where: {id}
         });
 
@@ -58,7 +75,7 @@ const updatedTablesById = async (req) => {
 const deleteTablesById = async (req) => {
     try{
         const{id} = req.params;
-        const deleteRows = await Table.destroy({
+        const deleteRows = await Table_name.destroy({
             where: {id}
         });
 
@@ -74,4 +91,4 @@ const deleteTablesById = async (req) => {
 }
 
 export {createTable,getTables}
-export {getTablesById,updatedTablesById,deleteTablesById}
+export {getTablesById,updatedTablesById,deleteTablesById,activeByUuid}

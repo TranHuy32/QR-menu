@@ -29,6 +29,11 @@ export default (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      active:{
+        type: DataTypes.BOOLEAN,
+        defaultValue: true,
+        allowNull:false,
+      }
     },
     {
       sequelize,
