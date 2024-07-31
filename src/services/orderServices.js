@@ -168,31 +168,31 @@ const getOrders = async (req) => {
 //get order query id
 const getDetailtOrder = async (req) => {
     const { id } = req.query;
-    console.log(1111111111,id);
-  
+
     try {
-        const order  = await Order.findOne({
-        where: { id: id },
-        include: [
-                { model: Dish, 
-            as: 'dishes',
+        const order = await Order.findOne({
+            where: { id: id },
+            include: [
+                {
+                    model: Dish,
+                    as: 'dishes',
                     through: {
-                model:Orderdish,
-                as:'orderdishes'
-          }
+                        model:Orderdish,
+                        as:'orderdishes'
+                    }
                 },
-        ],
-      });
-      console.log(2222222222, order);
-  
-      if (!order) {
-        throw new Error(`Order with id ${id} not found`);
-      }
-      return order;
+            ],
+        });
+        console.log(2222222222, order);
+
+        if (!order) {
+            throw new Error(`Order with id ${id} not found`);
+        }
+        return order;
     } catch (error) {
         throw new Error(error);
     }
-  };
+};
   
 const updateOrder = async (req, res) => {
     try {

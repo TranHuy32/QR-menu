@@ -8,6 +8,7 @@ import imageRoute from './image';
 import orderRoutes from './order';
 import employeeRoutes from './employee';
 import optionRoutes from './option';
+import billRoutes from './bill';
 
 
 // any endpoints for api/{anything} will be here
@@ -23,5 +24,6 @@ imageRoute(v1);
 orderRoutes(v1);
 employeeRoutes(v1);
 optionRoutes(v1);
+billRoutes(v1);
 
 module.exports = v1;
