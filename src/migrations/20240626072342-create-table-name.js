@@ -15,6 +15,9 @@ module.exports = {
       zone: {
         type: Sequelize.STRING
       },
+      status:{
+        type: Sequelize.STRING
+      },
       uuid: {
         type: Sequelize.STRING,
         defaultValue: () => v4(), // Đảm bảo sinh UUID tự động cho trường uuid

@@ -4,8 +4,8 @@ import { v4 as uuidv4, v4 } from 'uuid';
 export default (sequelize) => {
   class Table extends Model {
     static associate(models) {
-      Table.hasMany(models.Order,{ foreignKey: 'table_id', as:'orders'})
-      Table.hasMany(models.Employee,{ foreignKey: 'table_id'})
+      Table.hasMany(models.Order, { foreignKey: 'table_id', as: 'orders' })
+      Table.hasMany(models.Employee, { foreignKey: 'table_id' })
     }
   }
   Table.init(
@@ -29,6 +29,11 @@ export default (sequelize) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
+      status: {
+        type: DataTypes.STRING,
+        allowNull: false,
+
+      }
     },
     {
       sequelize,
