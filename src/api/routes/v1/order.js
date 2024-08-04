@@ -23,7 +23,7 @@ const orderRoutes = (app) => {
         try {
 
             const order = await createOrder(req);
-            res.status(200).json({ status: 200, Order: order });
+            res.status(200).json({ status: 200, ListOrder: order });
 
         } catch (error) {
             console.error(error);
@@ -49,7 +49,7 @@ const orderRoutes = (app) => {
     route.put("/:id/status", async (req, res, next) => {
         try {
             const orders = await updateOrder(req);
-            res.status(200).json({ status: 202, listTable: orders.message });
+            res.status(200).json({ status: 202, listOrder: orders.message });
         } catch (error) {
             //   return next(err);
             console.error(error);

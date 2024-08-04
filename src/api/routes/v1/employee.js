@@ -10,7 +10,7 @@ const employeeRoutes = (app) => {
     route.post("/", async (req, res, next) => {
         try {
             const employees = await createEmployee(req);
-            res.status(200).json({ status: 200, listTable: employees });
+            res.status(200).json({ status: 200, NewEmployess: employees });
         } catch (error) {
             //   return next(err);
             console.error(error);
