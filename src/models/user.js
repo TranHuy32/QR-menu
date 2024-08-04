@@ -1,4 +1,3 @@
-'use strict';
 import { Model, DataTypes } from 'sequelize';
 
 export default (sequelize) => {
@@ -15,21 +14,33 @@ export default (sequelize) => {
 
   User.init(
     {
-      firstName: {
+      name: {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      lastName: {
+      phonenumber: {
         type: DataTypes.STRING,
         allowNull: false,
       },
       email: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true,
-        validate: {
-          isEmail: true,
-        },
+        // unique: true,
+        // validate: {
+        //   isEmail: true,
+        // },
+      },
+      age: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      address: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      password: {
+        type: DataTypes.STRING,
+        allowNull: false,
       },
     },
     {
@@ -37,6 +48,5 @@ export default (sequelize) => {
       modelName: 'User',
     }
   );
-
   return User;
 };
