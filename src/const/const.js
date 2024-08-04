@@ -5,3 +5,8 @@ export const Status = {
     COMPLETED: 'completed',
     CANCELLED: 'cancelled'
 }
+
+export const statusEmployee = {
+    ACTIVE:'active',
+    UNACTIVE:'unactive'
+}
