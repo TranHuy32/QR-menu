@@ -34,7 +34,7 @@ const createDish = async (req) => {
 
 const getSearchDishes = async (req) => {
     try {
-        const { page, pageSize = 3, nameOrder, priceOrder, search } = req.query;
+        const { page, pageSize = 3, nameOrder, priceOrder, search,category_id } = req.query;
         const offset = (page - 1) * pageSize;
         const limit = parseInt(pageSize);
 
@@ -44,6 +44,11 @@ const getSearchDishes = async (req) => {
                 [Op.like]: `%${search}%`
             };
         }
+
+        if (category_id) {
+            whereClause.category_id = category_id;  // Thêm điều kiện lọc theo category_id
+        }
+        console.log(whereClause);
 
         let orderClause = [];
         if (nameOrder) {
