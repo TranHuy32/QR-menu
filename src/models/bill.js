@@ -7,13 +7,11 @@ export default (sequelize) => {
     }
   }
   Bill.init({
-    user_id: {
-      type: DataTypes.INTEGER,
+    id: {
       allowNull: false,
-      references: {
-        model: 'Users',
-        key: 'id'
-      }
+      autoIncrement: true,
+      primaryKey: true,
+      type: DataTypes.INTEGER
     },
     total_price: {
       type: DataTypes.STRING,
