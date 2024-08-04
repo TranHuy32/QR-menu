@@ -7,7 +7,7 @@ const Order = db.Order;
 
 
 const createBill = async (req) => {
-    const { employee_id, customer, table_id } = req.body;
+    const {customer, table_id } = req.body;
     const orders = await Order.findAll({
         where: {
             table_id: table_id,
@@ -25,7 +25,6 @@ const createBill = async (req) => {
     }, 0)
     try {
         const bill = await Bill.create({
-            employee_id: employee_id,
             total_price: totalPrice,
             customer: customer
         })

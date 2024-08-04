@@ -38,6 +38,7 @@ export default (sequelize) => {
     {
       sequelize,
       modelName: 'Table_name',
+      paranoid:true,
     }
   );
   return Table;

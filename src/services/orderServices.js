@@ -7,14 +7,32 @@ const Dish = db.Dish;
 const Orderdish = db.Orderdish;
 const Table_name = db.Table_name;
 const Option = db.Option;
+const User = db.User
 
 const createOrder = async (req) => {
-    console.log(1111111111111,req.body);
-    const status  = Status.PENDING
-    const { notes, phone_number, table_id, dishes } = req.body;
-    if(!phone_number) {
+    const status = Status.PENDING
+    const { notes, phone_number, table_id, user_id, dishes } = req.body;
+    if (!phone_number) {
         throw new Error("Hãy xin thông tin của khách hàng!!!");
     }
+    const table = await Table_name.findOne({
+        where: {
+            id: table_id,
+            status:'unactive'
+        }
+    })
+    if (!table ) {
+        throw new Error(`Bàn này không tồn tại hoặc khách hàng đang sử dụng!`)
+    }
+    const user = await User.findOne({
+        where: {
+            id: user_id,
+        }
+    })
+    if (!user) {
+        throw new Error(`User không tồn tại!`)
+    }
+
     try {
         if (!dishes || dishes.length === 0) {
             throw new Error("Chưa có món ăn nào được chọn.");
@@ -91,6 +109,7 @@ const createOrder = async (req) => {
             phone_number,
             table_id,
             total_price: totalPrice,
+            user_id
         });
 
         for (let dish of dishes) {
@@ -124,7 +143,7 @@ const createOrder = async (req) => {
 };
 
 const getOrders = async (req) => {
-    const { page, pageSize, status, date } = req.query;
+    const { page, pageSize, status, date, user_name, phone_number} = req.query;
     let conditions = {};
     if (status) {
         conditions.status = status;
@@ -135,6 +154,21 @@ const getOrders = async (req) => {
         conditions.createdAt = {
             [Op.between]: [startDate, endDate],
         };
+    }
+    if(user_name) {
+        const user = await User.findOne({
+            where:{
+                name:user_name
+            }
+        })
+        if(user) {
+            conditions.user_id =user.id
+        } else {
+            throw new Error("User không tồn tại!")
+        }
+    }
+    if(phone_number) {
+        conditions.phone_number = phone_number;
     }
     const limit = pageSize ? parseInt(pageSize, 10) : undefined;
     const offset = page ? (parseInt(page, 10) - 1) * limit : undefined;
@@ -160,7 +194,6 @@ const getOrders = async (req) => {
             currentPage: orders,
         };
     } catch (error) {
-        console.log(222222222, error);
         throw new Error(error);
     }
 };
@@ -177,14 +210,12 @@ const getDetailtOrder = async (req) => {
                     model: Dish,
                     as: 'dishes',
                     through: {
-                        model:Orderdish,
-                        as:'orderdishes'
+                        model: Orderdish,
+                        as: 'orderdishes'
                     }
                 },
             ],
         });
-        console.log(2222222222, order);
-
         if (!order) {
             throw new Error(`Order with id ${id} not found`);
         }
@@ -193,7 +224,7 @@ const getDetailtOrder = async (req) => {
         throw new Error(error);
     }
 };
-  
+
 const updateOrder = async (req, res) => {
     try {
         const { id } = req.params;
