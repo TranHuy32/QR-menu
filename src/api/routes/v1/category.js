@@ -10,7 +10,7 @@ const categoryRoutes = (app) => {
     route.get("/all",verifyToken, async (req, res, next) => {
         try {
             const categorys = await getCategorys(req);
-            res.status(200).json({ status: 200, listTable: categorys });
+            res.status(200).json({ status: 200, listCategory: categorys });
         } catch (error) {
             //   return next(err);
             console.error(error);
@@ -23,7 +23,7 @@ const categoryRoutes = (app) => {
     route.put("/:id", async (req, res, next) => {
         try {
             const upCategory = await updatedCategory(req);
-            res.status(200).json({ status: 202, listTable: upCategory.message });
+            res.status(200).json({ status: 202, NewCategory: upCategory.message });
         } catch (error) {
             //   return next(err);
             console.error(error);

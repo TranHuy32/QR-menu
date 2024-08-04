@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createTable, getTables, getTablesById,updatedTablesById,deleteTablesById } from "../../../services/tableServices.js";
+import { createTable, getTables, getTablesById,updatedTablesById,deleteTablesById,activeByUuid } from "../../../services/tableServices.js";
 import {verifyToken} from "../../../middleware/auth.js";
 
 const route = Router();
@@ -28,7 +28,17 @@ const tableRoutes = (app) => {
       res.status(500).json({ status: 500, message: "invalid tableId" });
     }
   });
-
+  // search table by uuid active
+  route.patch("/uuid", async (req, res, next) => {
+    try {
+      const tableId = await activeByUuid(req);
+      res.status(200).json({ status: 201, listTable: tableId });
+    } catch (error) {
+      //   return next(err);
+      console.error(error);
+      res.status(500).json({ status: 500, message: "invalid tableId" });
+    }
+  });
   // sua table theo ID
   route.put("/:id", async (req, res, next) => {
     try {
