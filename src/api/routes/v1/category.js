@@ -9,8 +9,8 @@ const categoryRoutes = (app) => {
     //search all category
     route.get("/all",verifyToken, async (req, res, next) => {
         try {
-            const categorys = await getCategorys(req);
-            res.status(200).json({ status: 200, listCategory: categorys });
+            const categories = await getCategorys(req);
+            res.status(200).json({ status: 200, listCategories: categories });
         } catch (error) {
             //   return next(err);
             console.error(error);
