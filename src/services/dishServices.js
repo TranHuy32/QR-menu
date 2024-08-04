@@ -9,7 +9,7 @@ const createDish = async (req) => {
     const { name, price, description, category_id, quantity } = req.body;
     let imageUrl = "";
     if (req.file) {
-        imageUrl = `http://127.0.0.1:3000/v1/image/${req.file.filename}`
+        imageUrl = `$${process.env.HOST}/v1/image/${req.file.filename}`
     }
     const categoryID = await Category.findByPk(category_id)
     if (!categoryID) {
@@ -71,7 +71,7 @@ const getSearchDishes = async (req) => {
         throw new Error(error.message);
     }
 };
-const updateDish = async (req) => { 
+const updateDish = async (req) => {
     const { id } = req.query;
     const { name, price, description, category_id, quantity, options } = req.body;
     let imageUrl;
