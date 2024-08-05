@@ -19,7 +19,7 @@ export default (sequelize) => {
         allowNull: false,
       },
       price: {
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER,
         allowNull: false,
       },
       image: {
@@ -31,7 +31,7 @@ export default (sequelize) => {
         allowNull: false,
       },
       quantity: {
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER,
         allowNull: false,
       },
       category_id: {

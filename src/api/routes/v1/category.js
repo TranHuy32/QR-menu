@@ -20,7 +20,7 @@ const categoryRoutes = (app) => {
 
 
     // sua category theo ID
-    route.put("/:id", async (req, res, next) => {
+    route.put("/:id",verifyToken, async (req, res, next) => {
         try {
             const upCategory = await updatedCategory(req);
             res.status(200).json({ status: 202, NewCategory: upCategory.message });
@@ -31,7 +31,7 @@ const categoryRoutes = (app) => {
         }
     });
 
-    route.post("/", async (req, res, next) => {
+    route.post("/",verifyToken, async (req, res, next) => {
         try {
             const category = await createCategory(req);
             res.status(200).json({ status: 200, newCategory: category });
