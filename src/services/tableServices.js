@@ -38,7 +38,34 @@ const getTablesById = async (req) => {
         throw new Error(error);
     }
 }
-const activeByUuid = async (req, res) => {
+const getTablesByUuid = async (req, res) => {
+    try {
+        const { uuid } = req.body;
+
+        // Kiểm tra nếu uuid không tồn tại trong yêu cầu
+        if (!uuid) {
+            return res.status(400).json({ message: 'UUID is required' });
+        }
+
+        // Tìm bảng dựa trên uuid
+        const table = await Table.findOne({ where: { uuid } });
+
+        // Nếu không tìm thấy bảng, trả về lỗi
+        if (!table) {
+            return res.status(404).json({ message: 'Table not found' });
+        }
+
+        // Trả về bảng đã tìm thấy
+        return res.status(200).json({ table });
+    } catch (error) {
+        // Xử lý lỗi chung và trả về thông báo lỗi
+        console.error('Error fetching table by UUID:', error.message);
+        return res.status(500).json({ message: 'An unexpected error occurred' });
+    }
+};
+
+
+const activeByUuid = async (req) => {
     try {
         console.log('Request received at activeByUuid');
 
@@ -100,4 +127,4 @@ const deleteTablesById = async (req) => {
 }
 
 export { createTable, getTables }
-export { getTablesById, updatedTablesById, deleteTablesById, activeByUuid }
+export { getTablesById, updatedTablesById, deleteTablesById, activeByUuid,getTablesByUuid }

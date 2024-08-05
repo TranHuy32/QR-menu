@@ -1,12 +1,12 @@
 import { Router } from "express";
 import { createBill } from "../../../services/billServices";
-
+import { verifyToken } from "../../../middleware/auth";
 
 const route = Router();
 
 const billRoutes = (app) => {
     app.use("/bill", route);
-    route.post("/", async (req, res, next) => {
+    route.post("/",verifyToken, async (req, res, next) => {
         try {
             const bill = await createBill(req);
             res.status(200).json({ status: 200, bill: bill });

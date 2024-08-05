@@ -1,12 +1,12 @@
 import { Router } from "express";
 import { getOrders, updateOrder, createOrder,getDetailtOrder } from "../../../services/orderServices.js";
-
+import { verifyToken } from "../../../middleware/auth.js";
 
 const route = Router();
 const orderRoutes = (app) => {
     app.use("/order", route);
 
-    route.get("/all", async (req, res, next) => {
+    route.get("/all",verifyToken, async (req, res, next) => {
         try {
             const orders = await getOrders(req);
             res.status(200).json({ status: 200, listOrder: orders });
@@ -33,7 +33,7 @@ const orderRoutes = (app) => {
 
     })
 
-    route.get("/detail", async (req, res, next) => {
+    route.get("/detail",verifyToken, async (req, res, next) => {
         try {
             const order = await getDetailtOrder(req);
             res.status(200).json({ status: 200, Order: order });

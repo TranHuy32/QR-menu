@@ -33,7 +33,7 @@ export default (sequelize) => {
 
     },
     total_price:{
-      type: DataTypes.STRING,
+      type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue:0
     },
