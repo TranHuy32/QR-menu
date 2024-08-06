@@ -7,7 +7,7 @@ const route = Router();
 const categoryRoutes = (app) => {
     app.use("/category", route);
     //search all category
-    route.get("/all",verifyToken, async (req, res, next) => {
+    route.get("/all", async (req, res, next) => {
         try {
             const categories = await getCategorys(req);
             res.status(200).json({ status: 200, listCategories: categories });
