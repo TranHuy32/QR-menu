@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createTable, getTables, getTablesById,updatedTablesById,deleteTablesById,activeByUuid } from "../../../services/tableServices.js";
+import { createTable, getTables, getTablesById,updatedTablesById,deleteTablesById,activeByUuid, getTablesByUuid } from "../../../services/tableServices.js";
 import {verifyToken} from "../../../middleware/auth.js";
 
 const route = Router();
@@ -29,8 +29,20 @@ const tableRoutes = (app) => {
     }
   });
   // search table by uuid active
-  route.patch("/uuid", async (req, res, next) => {
+  route.get("/uuid",verifyToken, async (req, res, next) => {
     try {
+      const tableUuid = await getTablesByUuid(req);
+      res.status(200).json({ status: 201, listTable: tableUuid });
+    } catch (error) {
+      //   return next(err);
+      console.error(error);
+      res.status(500).json({ status: 500, message: "invalid tableId" });
+    }
+  });
+
+  route.patch("/uuid",verifyToken, async (req, res, next) => {
+    try {
+      console.log(111111);
       const tableId = await activeByUuid(req);
       res.status(200).json({ status: 201, listTable: tableId });
     } catch (error) {
@@ -40,7 +52,7 @@ const tableRoutes = (app) => {
     }
   });
   // sua table theo ID
-  route.put("/:id", async (req, res, next) => {
+  route.put("/:id",verifyToken, async (req, res, next) => {
     try {
       const updatedTableId = await updatedTablesById (req);
       res.status(200).json({ status: 202, listTable: updatedTableId.message });
@@ -51,7 +63,7 @@ const tableRoutes = (app) => {
     }
   });
   // delete table by ID
-  route.delete("/:id", async (req, res, next) => {
+  route.delete("/:id",verifyToken, async (req, res, next) => {
     try {
       const deleteTableId = await deleteTablesById (req);
       res.status(204).json({ status: 202, listTable: deleteTableId.message });
@@ -62,7 +74,7 @@ const tableRoutes = (app) => {
     }
   });
 
-  route.post("/", async (req, res, next) => {
+  route.post("/",verifyToken, async (req, res, next) => {
     try {
       const table = await createTable(req);
       res.status(200).json({ status: 200, newTable: table });

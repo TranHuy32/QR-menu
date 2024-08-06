@@ -40,7 +40,7 @@ const dishRoutes = (app) => {
             res.status(500).json({ status: 500, message: "Can't search 3 Dish expensive!!!" });
         }
     });
-    route.put('/', upload.single('image'), async (req, res, next) => {
+    route.put('/',verifyToken, upload.single('image'), async (req, res, next) => {
         try {
             const newDish = await updateDish(req)
             res.status(200).json({ status: 200,message:"Update Sucessfully", newDish: newDish });
