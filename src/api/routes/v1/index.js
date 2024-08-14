@@ -9,6 +9,7 @@ import orderRoutes from './order';
 import employeeRoutes from './employee';
 import optionRoutes from './option';
 import billRoutes from './bill';
+import evaluateRoutes from './evaluate';
 
 
 // any endpoints for api/{anything} will be here
@@ -25,5 +26,6 @@ orderRoutes(v1);
 employeeRoutes(v1);
 optionRoutes(v1);
 billRoutes(v1);
+evaluateRoutes(v1);
 
 module.exports = v1;
