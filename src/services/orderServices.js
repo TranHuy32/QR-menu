@@ -1,6 +1,7 @@
-import { Sequelize, where, Op, ENUM } from "sequelize";
+import { Sequelize, where, Op, ENUM, or } from "sequelize";
 import db from "../models";
 import { Status } from "../const/const";
+import axios from 'axios';
 
 const Order = db.Order;
 const Dish = db.Dish;
@@ -11,17 +12,17 @@ const User = db.User
 
 const createOrder = async (req) => {
     const status = Status.PENDING
-    const {phone_number, table_id, dishes } = req.body;
+    const { phone_number, table_id, dishes } = req.body;
     if (!phone_number) {
         throw new Error("Hãy xin thông tin của khách hàng!!!");
     }
     const table = await Table_name.findOne({
         where: {
             id: table_id,
-            status:'active'
+            status: 'active'
         }
     })
-    if (table) {
+    if (!table) {
         throw new Error(`Bàn này không tồn tại hoặc khách hàng đang sử dụng!`)
     }
     try {
@@ -94,7 +95,6 @@ const createOrder = async (req) => {
             table_id,
             total_price: totalPrice,
         });
-        
         for (let dish of dishes) {
             try {
                 let existingOrderDish = await Orderdish.findOne({
@@ -102,7 +102,7 @@ const createOrder = async (req) => {
                         order_id: order.id,
                         dish_id: dish.dish_id,
                         option_id: dish.option_id,
-                        note:dish.note
+                        note: dish.note
                     },
                 });
                 if (existingOrderDish) {
@@ -114,13 +114,32 @@ const createOrder = async (req) => {
                         dish_id: dish.dish_id,
                         option_id: dish.option_id,
                         quantity: dish.quantity,
-                        note:dish.note
+                        note: dish.note
                     });
                 }
             } catch (error) {
                 throw new Error(error.message);
             }
         }
+        const config = {
+            headers: {
+                'x-client-id': process.env.CLIENT_ID,
+                'x-api-key': process.env.API_KEY,
+                'Content-Type': 'application/json'
+            }
+        }
+        const data = {
+            accountNo: process.env.ACCOUNT_NO,
+            accountName: process.env.ACCOUNT_NAME,
+            acqId: process.env.ACQ_ID,
+            addInfo: `Thanh toán đơn hàng ${order.id}`,
+            amount: order.total_price,
+            template: "compact2"
+        }
+        const payQR = await axios.post('https://api.vietqr.io/v2/generate', data, config
+        );
+        order.qr_url = payQR?.data?.data?.qrDataURL || null;
+        await order.save();
         return order;
     } catch (error) {
         throw new Error(error);
@@ -180,7 +199,7 @@ const getOrders = async (req) => {
         });
         const total_price = orders.reduce((acc, order) => (acc + order.total_price), 0)
         return {
-            total_price:total_price,
+            total_price: total_price,
             numberOfOrder: orders.length,
             pagesNumber: Math.ceil(orders.length / limit),
             currentPage: orders
@@ -268,10 +287,10 @@ const statisticalQuantityDish = async (req, res) => {
 
 }
 
-const statisticalOrders =async(req, res) => {
+const statisticalOrders = async (req, res) => {
     try {
-        const {startDate, endDate } = req.query;
-    
+        const { startDate, endDate } = req.query;
+
         const start = new Date(startDate)
         const end = new Date(endDate)
         if (startDate === endDate) {
@@ -287,11 +306,11 @@ const statisticalOrders =async(req, res) => {
                 }
             }
         });
-        
+
         const total_price = orders.reduce((acc, order) => (acc + order.total_price), 0)
         return {
-            total_price:total_price,
-            orders:orders.length
+            total_price: total_price,
+            orders: orders.length
 
         }
 
@@ -300,7 +319,7 @@ const statisticalOrders =async(req, res) => {
         error.code = 400;
         throw error;
     }
-   
+
 }
 
 export { createOrder, getOrders, getDetailtOrder, updateOrder, statisticalQuantityDish, statisticalOrders };

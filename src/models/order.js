@@ -47,10 +47,10 @@ export default (sequelize) => {
         key:'id'
       }
     },
-    // qr_url: {
-    //   type:DataTypes.STRING,
-    //   allowNull:true
-    // }
+    qr_url: {
+      type:DataTypes.STRING,
+      allowNull:true
+    }
   }, {
     sequelize,
     modelName: 'Order',
