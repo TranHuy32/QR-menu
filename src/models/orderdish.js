@@ -33,7 +33,10 @@ export default (sequelize) => {
         model: 'Option',
         key: 'id'
       }
-
+    },
+    note:{
+      type:DataTypes.STRING,
+      allowNull:true
     }
 
   }, {

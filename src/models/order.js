@@ -23,10 +23,6 @@ export default (sequelize) => {
       type:DataTypes.STRING,
       allowNull: false,
     }, 
-    notes:{
-      type:DataTypes.STRING,
-      allowNull: false,
-    }, 
     phone_number:{
       type:DataTypes.STRING,
       allowNull:false
@@ -36,14 +32,6 @@ export default (sequelize) => {
       type: DataTypes.INTEGER,
       allowNull: false,
       defaultValue:0
-    },
-    user_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: 'Users',
-        key: 'id'
-      }
     },
     table_id:{
       type: DataTypes.INTEGER,
@@ -58,7 +46,11 @@ export default (sequelize) => {
         model: 'Bills', 
         key:'id'
       }
-    }
+    },
+    // qr_url: {
+    //   type:DataTypes.STRING,
+    //   allowNull:true
+    // }
   }, {
     sequelize,
     modelName: 'Order',

@@ -11,7 +11,7 @@ const User = db.User
 
 const createOrder = async (req) => {
     const status = Status.PENDING
-    const { notes, phone_number, table_id, dishes } = req.body;
+    const {phone_number, table_id, dishes } = req.body;
     if (!phone_number) {
         throw new Error("Hãy xin thông tin của khách hàng!!!");
     }
@@ -90,19 +90,19 @@ const createOrder = async (req) => {
         }
         const order = await Order.create({
             status,
-            notes,
             phone_number,
             table_id,
             total_price: totalPrice,
         });
-
+        
         for (let dish of dishes) {
             try {
                 let existingOrderDish = await Orderdish.findOne({
                     where: {
                         order_id: order.id,
                         dish_id: dish.dish_id,
-                        option_id: dish.option_id
+                        option_id: dish.option_id,
+                        note:dish.note
                     },
                 });
                 if (existingOrderDish) {
@@ -114,6 +114,7 @@ const createOrder = async (req) => {
                         dish_id: dish.dish_id,
                         option_id: dish.option_id,
                         quantity: dish.quantity,
+                        note:dish.note
                     });
                 }
             } catch (error) {
