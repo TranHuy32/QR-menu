@@ -20,7 +20,7 @@ const categoryRoutes = (app) => {
 
 
     // sua category theo ID
-    route.put("/:id",verifyToken, async (req, res, next) => {
+    route.put("/:id", async (req, res, next) => {
         try {
             const upCategory = await updatedCategory(req);
             res.status(200).json({ status: 202, NewCategory: upCategory.message });

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createEvaluate, getEvaluates } from "../../../services/evaluateServices";
+import { createEvaluate, statisticalEvaluate } from "../../../services/evaluateServices";
 import upload from "../../../middleware/uploadImage.js";
 
 
@@ -18,9 +18,9 @@ route.post('/', upload.single('image'), async (req, res, next) => {
         });
     }
 })
-route.get('/all', async (req, res) => {
+route.get('/', async (req, res) => {
     try {
-        const evaluates = await getEvaluates(req);
+        const evaluates = await statisticalEvaluate(req);
         res.status(200).json({ status: 200, data: evaluates });
 
     } catch (error) {

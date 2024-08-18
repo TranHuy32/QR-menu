@@ -11,37 +11,22 @@ const User = db.User
 
 const createOrder = async (req) => {
     const status = Status.PENDING
-    const { notes, phone_number, table_id, user_id, dishes } = req.body;
+    const { notes, phone_number, table_id, dishes } = req.body;
     if (!phone_number) {
         throw new Error("Hãy xin thông tin của khách hàng!!!");
     }
     const table = await Table_name.findOne({
         where: {
             id: table_id,
-            status:'unactive'
+            status:'active'
         }
     })
-    if (!table ) {
+    if (table) {
         throw new Error(`Bàn này không tồn tại hoặc khách hàng đang sử dụng!`)
     }
-    const user = await User.findOne({
-        where: {
-            id: user_id,
-        }
-    })
-    if (!user) {
-        throw new Error(`User không tồn tại!`)
-    }
-
     try {
         if (!dishes || dishes.length === 0) {
             throw new Error("Chưa có món ăn nào được chọn.");
-        }
-        const existTable = await Table_name.findOne({
-            where: { id: table_id },
-        });
-        if (!existTable) {
-            throw new Error("Chưa có table nao duoc chon");
         }
         let totalPrice = 0;
 
@@ -109,7 +94,6 @@ const createOrder = async (req) => {
             phone_number,
             table_id,
             total_price: totalPrice,
-            user_id
         });
 
         for (let dish of dishes) {
@@ -143,31 +127,36 @@ const createOrder = async (req) => {
 };
 
 const getOrders = async (req) => {
-    const { page, pageSize, status, date, user_name, phone_number} = req.query;
+    const { page, pageSize, status, startDate, endDate, user_name, phone_number } = req.query;
     let conditions = {};
     if (status) {
         conditions.status = status;
     }
-    if (date) {
-        const startDate = new Date(`${date}T00:00:00.000Z`);
-        const endDate = new Date(`${date}T23:59:59.999Z`);
-        conditions.createdAt = {
-            [Op.between]: [startDate, endDate],
-        };
+    const start = new Date(startDate)
+    const end = new Date(endDate)
+    if (startDate === endDate) {
+        end.setHours(23, 59, 59, 999);
+    } else {
+        start.setHours(0, 0, 0, 0);
+        end.setHours(23, 59, 59, 999);
     }
-    if(user_name) {
+    conditions.createdAt = {
+        [Op.between]: [start, end],
+    };
+
+    if (user_name) {
         const user = await User.findOne({
-            where:{
-                name:user_name
+            where: {
+                name: user_name
             }
         })
-        if(user) {
-            conditions.user_id =user.id
+        if (user) {
+            conditions.user_id = user.id
         } else {
             throw new Error("User không tồn tại!")
         }
     }
-    if(phone_number) {
+    if (phone_number) {
         conditions.phone_number = phone_number;
     }
     const limit = pageSize ? parseInt(pageSize, 10) : undefined;
@@ -188,10 +177,12 @@ const getOrders = async (req) => {
             offset,
             limit,
         });
+        const total_price = orders.reduce((acc, order) => (acc + order.total_price), 0)
         return {
+            total_price:total_price,
             numberOfOrder: orders.length,
             pagesNumber: Math.ceil(orders.length / limit),
-            currentPage: orders,
+            currentPage: orders
         };
     } catch (error) {
         throw new Error(error);
@@ -245,7 +236,73 @@ const updateOrder = async (req, res) => {
     }
 };
 
-export { createOrder, getOrders, getDetailtOrder, updateOrder };
+const statisticalQuantityDish = async (req, res) => {
+    try {
+        const { dish_id, startDate, endDate } = req.query;
+
+        const start = new Date(startDate)
+        const end = new Date(endDate)
+        if (startDate === endDate) {
+            end.setHours(23, 59, 59, 999);
+        } else {
+            start.setHours(0, 0, 0, 0);
+            end.setHours(23, 59, 59, 999);
+        }
+        const dishes = await Orderdish.findAll({
+            where: {
+                dish_id: dish_id,
+                createdAt: {
+                    [Op.between]: [start, end]
+                }
+            }
+        })
+        const dishQuantity = dishes.reduce((acc, dish) => acc + dish.quantity, 0)
+        return dishQuantity
+
+    } catch (error) {
+        const err = new Error("Can't get quantiy ");
+        error.code = 400;
+        throw error;
+    }
+
+}
+
+const statisticalOrders =async(req, res) => {
+    try {
+        const {startDate, endDate } = req.query;
+    
+        const start = new Date(startDate)
+        const end = new Date(endDate)
+        if (startDate === endDate) {
+            end.setHours(23, 59, 59, 999);
+        } else {
+            start.setHours(0, 0, 0, 0);
+            end.setHours(23, 59, 59, 999);
+        }
+        const orders = await Order.findAll({
+            where: {
+                createdAt: {
+                    [Op.between]: [start, end]
+                }
+            }
+        });
+        
+        const total_price = orders.reduce((acc, order) => (acc + order.total_price), 0)
+        return {
+            total_price:total_price,
+            orders:orders.length
+
+        }
+
+    } catch (error) {
+        const err = new Error("Can't get quantiy ");
+        error.code = 400;
+        throw error;
+    }
+   
+}
+
+export { createOrder, getOrders, getDetailtOrder, updateOrder, statisticalQuantityDish, statisticalOrders };
 
 // PENDING: 'pending',
 // PREPARING: 'preparing',
