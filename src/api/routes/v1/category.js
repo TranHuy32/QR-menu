@@ -27,7 +27,7 @@ const categoryRoutes = (app) => {
         } catch (error) {
             //   return next(err);
             console.error(error);
-            res.status(500).json({ status: 500, message: "invalid updatedTableId" });
+            res.status(500).json({ status: 500, message: "invalid updatedCategoryId" });
         }
     });
 
@@ -48,7 +48,7 @@ const categoryRoutes = (app) => {
         } catch (error) {
             //   return next(err);
             console.error(error);
-            res.status(500).json({ status: 500, message: "invalid deleteTableId" });
+            res.status(500).json({ status: 500, message: "invalid deleteCategoryId" });
         }
     });
 
