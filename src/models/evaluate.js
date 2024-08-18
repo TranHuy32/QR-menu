@@ -1,4 +1,5 @@
 import { Model, DataTypes } from 'sequelize';
+import { evaluateStar } from '../const/const';
 
 export default (sequelize) => {
   class Evaluate extends Model {
@@ -20,6 +21,10 @@ export default (sequelize) => {
     image: {
       type: DataTypes.STRING,
       allowNull:true
+    },
+    star: {
+      type: DataTypes.ENUM(evaluateStar.one, evaluateStar.two, evaluateStar.three, evaluateStar.four, evaluateStar.five),
+      defaultValue: evaluateStar.five
     },
   }, {
     sequelize,
