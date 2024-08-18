@@ -1,5 +1,5 @@
 import { Router } from "express";
-import {createCategory,getCategorys,updatedCategory  } from "../../../services/categoryServices.js";
+import {createCategory,deleteCategory,getCategorys,updatedCategory  } from "../../../services/categoryServices.js";
 import {verifyToken} from "../../../middleware/auth.js";
 
 const route = Router();
@@ -27,7 +27,7 @@ const categoryRoutes = (app) => {
         } catch (error) {
             //   return next(err);
             console.error(error);
-            res.status(500).json({ status: 500, message: "invalid updatedTableId" });
+            res.status(500).json({ status: 500, message: "invalid updatedCategoryId" });
         }
     });
 
@@ -38,6 +38,17 @@ const categoryRoutes = (app) => {
         } catch (error) {
             console.error(error);
             res.status(500).json({ status: 500, message: "Can't create new Category!!!" });
+        }
+    });
+
+    route.delete("/:id",verifyToken, async (req, res, next) => {
+        try {
+            const delCategory = await deleteCategory(req);
+            res.status(200).json({ status: 202, NewCategory: delCategory.message });
+        } catch (error) {
+            //   return next(err);
+            console.error(error);
+            res.status(500).json({ status: 500, message: "invalid deleteCategoryId" });
         }
     });
 

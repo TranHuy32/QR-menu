@@ -78,7 +78,7 @@ const updateDish = async (req) => {
     const { name, price, description, category_id, quantity, options } = req.body;
     let imageUrl;
     if (req.file) {
-        imageUrl = `http://127.0.0.1:3000/v1/image/${req.file.filename}`
+        imageUrl = `${process.env.HOST}/v1/image/${req.file.filename}`
     }
     const dish = await Dish.findByPk(id);
     if (!dish) {
