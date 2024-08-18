@@ -1,20 +1,21 @@
+import { where } from 'sequelize';
 import db from '../models';
 const Category = db.Category;
 
-const  createCategory = async(req) => {
+const createCategory = async (req) => {
     try {
-        const {name} = req.body
-        const existCategory = await Category.findOne({where:{name}})
-        if(existCategory){
+        const { name } = req.body
+        const existCategory = await Category.findOne({ where: { name } })
+        if (existCategory) {
             throw new Error("Loai Da Ton Tai")
         }
-        const category =  await Category.create(req.body)
+        const category = await Category.create(req.body)
         return category
     } catch (error) {
         throw error.message
     }
 }
-const getCategorys  = async(req) => {
+const getCategorys = async (req) => {
     try {
         const category = await Category.findAll()
         return category;
@@ -24,20 +25,36 @@ const getCategorys  = async(req) => {
     }
 }
 const updatedCategory = async (req) => {
-    try{
-        const{id} = req.params;
+    try {
+        const { id } = req.params;
         const updatedRows = await Category.update(req.body, {
-            where: {id}
+            where: { id }
         });
 
 
-        if(updatedRows[0] === 0){
+        if (updatedRows[0] === 0) {
             throw new Error('category not found');
         }
-        return {message: 'Category updated successfull'};
+        return { message: 'Category updated successfull' };
 
-    }catch(error){
+    } catch (error) {
         throw error.message
     }
 }
-export{createCategory,getCategorys,updatedCategory};
+const deleteCategory = async (req) => {
+    try {
+        const { id } = req.params;
+        const delCategory = await Category.destroy(
+            { where: { id } }
+        )
+        if(delCategory[0] === 0){
+            throw new Error('Category not found');
+        }
+        return { message: 'Category delete successfull' };
+
+    } catch (error) {
+        throw error.message
+    }
+}
+
+export { createCategory, getCategorys, updatedCategory , deleteCategory};
