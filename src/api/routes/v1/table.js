@@ -29,18 +29,18 @@ const tableRoutes = (app) => {
     }
   });
   // search table by uuid active
-  route.get("/uuid",verifyToken, async (req, res, next) => {
+  route.get("/",verifyToken, async (req, res, next) => {
     try {
-      const tableUuid = await getTablesByUuid(req);
-      res.status(200).json({ status: 201, listTable: tableUuid });
+        console.log('Request received at GET /:uuid');
+        const tableUuid = await getTablesByUuid(req, res); // Truyền cả req và res
+        res.status(200).json({ status: 201, listTable: tableUuid });
     } catch (error) {
-      //   return next(err);
-      console.error(error);
-      res.status(500).json({ status: 500, message: "invalid tableId" });
+        console.error('Error in GET /:uuid:', error);
+        res.status(500).json({ status: 500, message: "Invalid table UUID" });
     }
-  });
+});
 
-  route.patch("/uuid",verifyToken, async (req, res, next) => {
+  route.patch("/",verifyToken, async (req, res, next) => {
     try {
       console.log(111111);
       const tableId = await activeByUuid(req);

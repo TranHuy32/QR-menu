@@ -42,54 +42,60 @@ const getTablesByUuid = async (req, res) => {
     try {
         const { uuid } = req.body;
 
-        // Kiểm tra nếu uuid không tồn tại trong yêu cầu
+
         if (!uuid) {
             return res.status(400).json({ message: 'UUID is required' });
         }
 
-        // Tìm bảng dựa trên uuid
+        
         const table = await Table.findOne({ where: { uuid } });
 
-        // Nếu không tìm thấy bảng, trả về lỗi
+
         if (!table) {
             return res.status(404).json({ message: 'Table not found' });
         }
 
-        // Trả về bảng đã tìm thấy
+
         return res.status(200).json({ table });
     } catch (error) {
-        // Xử lý lỗi chung và trả về thông báo lỗi
+        
         console.error('Error fetching table by UUID:', error.message);
         return res.status(500).json({ message: 'An unexpected error occurred' });
     }
 };
 
 
-const activeByUuid = async (req) => {
+
+
+const activeByUuid = async (req, res) => {
     try {
-        console.log('Request received at activeByUuid');
+        console.log('Request received at activeByUuid', 111111);
 
-        const { uuid, active } = req.body;
+        const { uuid, status } = req.body;
 
-        if (!uuid || typeof active !== 'string') {
+        if (!uuid || typeof status !== 'string') {
             return res.status(400).json({ message: 'Invalid request data' });
         }
 
         const table = await Table.findOne({ where: { uuid } });
 
+        console.log('Found table:', table); // Thêm dòng này để kiểm tra
+
         if (!table) {
             return res.status(404).json({ message: 'Table not found' });
         }
 
-        table.status = active;
+        table.status = status;
         await table.save();
 
-        return res.status(200).json({ message: 'Table updated successfully', table });
+        return table
     } catch (error) {
         console.error('Error in activeByUuid:', error.message);
         return res.status(500).json({ message: 'An unexpected error occurred' });
     }
 };
+
+
 
 const updatedTablesById = async (req) => {
     try {
@@ -127,4 +133,4 @@ const deleteTablesById = async (req) => {
 }
 
 export { createTable, getTables }
-export { getTablesById, updatedTablesById, deleteTablesById, activeByUuid,getTablesByUuid }
+export { getTablesById, updatedTablesById, deleteTablesById, activeByUuid, getTablesByUuid }
