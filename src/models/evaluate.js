@@ -18,6 +18,10 @@ export default (sequelize) => {
       type: DataTypes.STRING,
       allowNull:true
     },
+    phone_number: {
+      type: DataTypes.STRING,
+      allowNull:true
+    },
     image: {
       type: DataTypes.STRING,
       allowNull:true

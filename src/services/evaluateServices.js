@@ -1,11 +1,11 @@
 import db from "../models";
-import {  Op } from "sequelize";
+import { Op } from "sequelize";
 
 
 const Evaluate = db.Evaluate;
 
-const createEvaluate = async(req) => {
-   const {description, star} = req.body
+const createEvaluate = async (req) => {
+    const { description, star, phone_number } = req.body    
     let imageUrl = "";
     if (req.file) {
         imageUrl = `${process.env.HOST}/v1/image/${req.file.filename}`
@@ -14,17 +14,18 @@ const createEvaluate = async(req) => {
         const newEvaluate = await Evaluate.create({
             description,
             star,
+            phone_number,
             image: imageUrl
         })
         return newEvaluate
     } catch (error) {
         const err = new Error("Can't create new evaluate");
         error.code = 400;
-        throw error;  
+        throw error;
     }
 }
 
-const statisticalEvaluate = async(req) => {
+const statisticalEvaluate = async (req) => {
     try {
         const { star, startDate, endDate } = req.query;
 
@@ -36,15 +37,17 @@ const statisticalEvaluate = async(req) => {
             start.setHours(0, 0, 0, 0);
             end.setHours(23, 59, 59, 999);
         }
+        let conditions = {} 
+        conditions.createdAt = {
+            [Op.between]: [start, end]
+        }
+        if (star) {
+            conditions.star = star
+        }
         const evaluates = await Evaluate.findAll({
-            where: {
-                star: star,
-                createdAt: {
-                    [Op.between]: [start, end]
-                }
-            }
+            where: conditions
         })
-        
+
         return evaluates
 
     } catch (error) {
@@ -54,4 +57,4 @@ const statisticalEvaluate = async(req) => {
     }
 }
 // const statisticalEvaluates = async(req)
-export {createEvaluate, statisticalEvaluate}
+export { createEvaluate, statisticalEvaluate }
