@@ -10,7 +10,7 @@ const createTable = async (req) => {
             throw new Error("Ban Da Ton Tai")
         }
 
-        const table = await Table.create(req.body)
+        const table = await Table.create({...req.body, zone: "A" })
         return table
     } catch (error) {
         throw new Error(error)

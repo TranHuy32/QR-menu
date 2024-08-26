@@ -27,7 +27,7 @@ const orderRoutes = (app) => {
 
         } catch (error) {
             console.error(error);
-            res.status(500).json({ status: 500, message: "invalid order" });
+            res.status(500).json({ status: 500, message: error?.message ?? "invalid order" });
 
         }
 
