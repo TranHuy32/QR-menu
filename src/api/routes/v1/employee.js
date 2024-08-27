@@ -18,13 +18,13 @@ const employeeRoutes = (app) => {
         }
     });
 
-    route.get("/",verifyToken, async (req, res, next) => {
+    route.get("/", verifyToken, async (req, res, next) => {
         try {
             const employees = await getEmployees(req);
             res.status(200).json({ status: 200, listEmployess: employees });
         } catch (error) {
             console.error(error);
-            res.status(500).json({ status: 500, message: "invalid employees" });
+            res.status(500).json({ status: 500, message: error.message ?? "invalid employees" });
         }
 
     })

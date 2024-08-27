@@ -3,7 +3,9 @@ import { Model, DataTypes } from 'sequelize';
 export default (sequelize) => {
   class Employee extends Model {
     static associate(models) {
-      Employee.belongsTo(models.Table_name, { foreignKey: 'table_id' });
+      Employee.belongsTo(models.Table_name, {
+        foreignKey: 'table_id', as: 'table'
+      });
     }
   }
   Employee.init({

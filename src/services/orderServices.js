@@ -11,7 +11,7 @@ const Option = db.Option;
 const User = db.User
 
 const createOrder = async (req) => {
-    const status = Status.PENDING
+    const status = Status.PENDING;
     const { phone_number, table_id, dishes } = req.body;
     if (!phone_number) {
         throw new Error("Hãy xin thông tin của khách hàng!!!");
@@ -21,9 +21,9 @@ const createOrder = async (req) => {
             id: table_id,
             status: 'active'
         }
-    })
+    });
     if (!table) {
-        throw new Error(`Bàn này không tồn tại hoặc khách hàng đang sử dụng!`)
+        throw new Error(`Bàn này không tồn tại hoặc khách hàng đang sử dụng!`);
     }
     try {
         if (!dishes || dishes.length === 0) {
@@ -31,7 +31,7 @@ const createOrder = async (req) => {
         }
         let totalPrice = 0;
 
-        const dishQuantity = {}
+        const dishQuantity = {};
         for (let dish of dishes) {
             const { dish_id, quantity, option_id } = dish;
 
@@ -62,16 +62,22 @@ const createOrder = async (req) => {
                     if (!existDish) {
                         throw new Error(`Món ăn với id ${dish_id} không tồn tại hoặc bị quá số lượng cho phép`);
                     }
-                    const existOption = await Option.findOne({
-                        where: {
-                            id: option_id
-                        }
-                    });
 
-                    if (!existOption) {
-                        throw new Error(`Option với id ${option_id} không tồn tại`);
+                    let optionPrice = 0;
+                    if (option_id) {
+                        const existOption = await Option.findOne({
+                            where: {
+                                id: option_id
+                            }
+                        });
+
+                        if (!existOption) {
+                            throw new Error(`Option với id ${option_id} không tồn tại`);
+                        }
+                        optionPrice = existOption.price;
                     }
-                    totalPrice += (existDish.price * quantity) + (existOption.price * quantity)
+
+                    totalPrice += (existDish.price * quantity) + (optionPrice * quantity);
                     console.log('Total price after calculation:', totalPrice);
 
                     // Cập nhật quantity của Dish sau khi đặt hàng
@@ -101,7 +107,7 @@ const createOrder = async (req) => {
                     where: {
                         order_id: order.id,
                         dish_id: dish.dish_id,
-                        option_id: dish.option_id,
+                        option_id: dish.option_id || null,
                         note: dish.note
                     },
                 });
@@ -112,7 +118,7 @@ const createOrder = async (req) => {
                     await Orderdish.create({
                         order_id: order.id,
                         dish_id: dish.dish_id,
-                        option_id: dish.option_id,
+                        option_id: dish.option_id || null,
                         quantity: dish.quantity,
                         note: dish.note
                     });
@@ -127,7 +133,7 @@ const createOrder = async (req) => {
                 'x-api-key': process.env.API_KEY,
                 'Content-Type': 'application/json'
             }
-        }
+        };
         const data = {
             accountNo: process.env.ACCOUNT_NO,
             accountName: process.env.ACCOUNT_NAME,
@@ -135,14 +141,13 @@ const createOrder = async (req) => {
             addInfo: `Thanh toán đơn hàng ${order.id}`,
             amount: order.total_price,
             template: "compact2"
-        }
-        const payQR = await axios.post('https://api.vietqr.io/v2/generate', data, config
-        );
+        };
+        const payQR = await axios.post('https://api.vietqr.io/v2/generate', data, config);
         order.qr_url = payQR?.data?.data?.qrDataURL || null;
         await order.save();
         return order;
     } catch (error) {
-        throw new Error(error);
+        throw new Error(error.message);
     }
 };
 
@@ -182,7 +187,7 @@ const getOrders = async (req) => {
     const limit = pageSize ? parseInt(pageSize, 10) : undefined;
     const offset = page ? (parseInt(page, 10) - 1) * limit : undefined;
     try {
-        const orders = await Order.findAll({
+        let orders = await Order.findAll({
             where: conditions,
             include: [
                 {
@@ -197,6 +202,24 @@ const getOrders = async (req) => {
             offset,
             limit,
         });
+        if (!orders) {
+            orders = []
+        }
+        orders = orders.map(order => order.toJSON());
+        await Promise.all(orders.map(async (order) => {
+            if (order.dishes) {
+                order.dishes = await Promise.all(order.dishes.map(async (dish) => {
+                    if (dish?.orderdishes?.option_id) {
+                        let option = await Option.findOne({ where: { id: dish.orderdishes.option_id } });
+                        if (option) {
+                            option = option.toJSON();
+                            dish.orderdishes = { ...dish.orderdishes, option_name: option.name, option_price: option.price };
+                        }
+                    }
+                    return dish;
+                }));
+            }
+        }));
         const total_price = orders.reduce((acc, order) => (acc + order.total_price), 0)
         return {
             total_price: total_price,
