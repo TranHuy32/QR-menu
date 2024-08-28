@@ -312,38 +312,45 @@ const statisticalQuantityDish = async (req, res) => {
 
 const statisticalOrders = async (req, res) => {
     try {
-        const { startDate, endDate } = req.query;
+        const { month } = req.query;
 
-        const start = new Date(startDate)
-        const end = new Date(endDate)
-        if (startDate === endDate) {
-            end.setHours(23, 59, 59, 999);
-        } else {
-            start.setHours(0, 0, 0, 0);
-            end.setHours(23, 59, 59, 999);
+        // Kiểm tra nếu month là một số hợp lệ
+        const monthNumber = parseInt(month, 10);
+        if (isNaN(monthNumber) || monthNumber < 1 || monthNumber > 12) {
+            return res.status(400).json({ message: "Invalid month parameter. It must be a number between 1 and 12." });
         }
+
+        // Lấy năm hiện tại
+        const year = new Date().getFullYear();
+
+        // Tạo startDate và endDate cho tháng cụ thể
+        const start = new Date(year, monthNumber - 1, 1, 0, 0, 0, 0);
+        const end = new Date(year, monthNumber, 0, 23, 59, 59, 999);
+
+        // Tìm các đơn hàng trong khoảng thời gian
         const orders = await Order.findAll({
             where: {
                 createdAt: {
-                    [Op.between]: [start, end]
-                }
-            }
+                    [Op.between]: [start, end],
+                },
+            },
         });
 
-        const total_price = orders.reduce((acc, order) => (acc + order.total_price), 0)
-        return {
-            total_price: total_price,
-            orders: orders.length
+        // Tính tổng doanh thu
+        const total_price = orders.reduce((acc, order) => acc + order.total_price, 0);
 
-        }
+        // Trả về tổng doanh thu và số lượng đơn hàng cho tháng
+        return({
+            total_price: total_price,
+            orders: orders.length,
+        });
 
     } catch (error) {
-        const err = new Error("Can't get quantiy ");
-        error.code = 400;
-        throw error;
+        // Gửi phản hồi lỗi
+        res.status(400).json({ message: "Can't get orders for the specified month", error: error.message });
     }
+};
 
-}
 
 export { createOrder, getOrders, getDetailtOrder, updateOrder, statisticalQuantityDish, statisticalOrders };
 
