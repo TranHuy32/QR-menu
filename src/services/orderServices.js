@@ -301,27 +301,41 @@ const updateOrder = async (req, res) => {
 };
 
 const statisticalQuantityDish = async (req, res) => {
-    try {
-        const { dish_id, startDate, endDate } = req.query;
-
-        const start = new Date(startDate)
-        const end = new Date(endDate)
+        try {
+        const { startDate, endDate } = req.query;
+    
+        const start = new Date(startDate);
+        const end = new Date(endDate);
         if (startDate === endDate) {
             end.setHours(23, 59, 59, 999);
         } else {
             start.setHours(0, 0, 0, 0);
             end.setHours(23, 59, 59, 999);
         }
+    
         const dishes = await Orderdish.findAll({
             where: {
-                dish_id: dish_id,
                 createdAt: {
                     [Op.between]: [start, end]
                 }
-            }
-        })
-        const dishQuantity = dishes.reduce((acc, dish) => acc + dish.quantity, 0)
-        return dishQuantity
+            },
+            attributes: ['dish_id', [Sequelize.fn('SUM', Sequelize.col('Orderdish.quantity')), 'totalQuantity']],
+            group: ['dish_id'],
+            include: [
+                {
+                    model: Dish,
+                    as: 'dishes',
+                    attributes: ['id', 'name', 'price'] // Add any other attributes you need
+                }
+            ]
+        });
+    
+        const dishQuantities = dishes.map(dish => ({
+            totalQuantity: dish.get('totalQuantity'),
+            dishInfo: dish.dishes 
+        })); 
+    
+        return dishQuantities;
 
     } catch (error) {
         const err = new Error("Can't get quantiy ");
