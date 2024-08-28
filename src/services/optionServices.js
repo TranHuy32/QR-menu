@@ -54,6 +54,39 @@ const getOptions = async (req) => {
 
     }
 }
-export { createOption, getOptions }
+
+const updatedOption = async (req) => {
+    try {
+        const { id } = req.params;
+        const updatedRows = await Option.update(req.body, {
+            where: { id }
+        });
+
+
+        if (updatedRows[0] === 0) {
+            throw new Error('option not found');
+        }
+        return { message: 'option updated successfull' };
+
+    } catch (error) {
+        throw error.message
+    }
+}
+const deleteOption = async (req) => {
+    try {
+        const { id } = req.params;
+        const delOption = await Option.destroy(
+            { where: { id } }
+        )
+        if(delOption[0] === 0){
+            throw new Error('Option not found');
+        }
+        return { message: 'Option delete successfull' };
+
+    } catch (error) {
+        throw error.message
+    }
+}
+export { createOption, getOptions,deleteOption,updatedOption }
 
 
