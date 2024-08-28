@@ -44,7 +44,7 @@ const getTablesByUuid = async (req, res) => {
 
 
         if (!uuid) {
-            return res.status(400).json({ message: 'UUID is required' });
+            throw new Error('Uuid not found')
         }
 
         
@@ -52,15 +52,13 @@ const getTablesByUuid = async (req, res) => {
 
 
         if (!table) {
-            return res.status(404).json({ message: 'Table not found' });
+            throw new Error('Table not found')
         }
 
 
-        return res.status(200).json({ table });
+        return table
     } catch (error) {
-        
-        console.error('Error fetching table by UUID:', error.message);
-        return res.status(500).json({ message: 'An unexpected error occurred' });
+        throw new Error(error);
     }
 };
 
@@ -69,20 +67,18 @@ const getTablesByUuid = async (req, res) => {
 
 const activeByUuid = async (req, res) => {
     try {
-        console.log('Request received at activeByUuid', 111111);
 
         const { uuid, status } = req.body;
 
         if (!uuid || typeof status !== 'string') {
-            return res.status(400).json({ message: 'Invalid request data' });
+            throw new Error('Invalid request data');
         }
-
+        
         const table = await Table.findOne({ where: { uuid } });
 
-        console.log('Found table:', table); // Thêm dòng này để kiểm tra
 
         if (!table) {
-            return res.status(404).json({ message: 'Table not found' });
+            throw new Error('Table not found');
         }
 
         table.status = status;
@@ -90,8 +86,7 @@ const activeByUuid = async (req, res) => {
 
         return table
     } catch (error) {
-        console.error('Error in activeByUuid:', error.message);
-        return res.status(500).json({ message: 'An unexpected error occurred' });
+        throw new Error(error);
     }
 };
 
