@@ -187,7 +187,27 @@ const getOrders = async (req) => {
     const limit = pageSize ? parseInt(pageSize, 10) : undefined;
     const offset = page ? (parseInt(page, 10) - 1) * limit : undefined;
     try {
-        let orders = await Order.findAll({
+        // Fetch all orders to calculate the total price
+        const allOrders = await Order.findAll({
+            where: conditions,
+            include: [
+                {
+                    model: Dish,
+                    as: "dishes",
+                    through: {
+                        model: Orderdish,
+                        as: "orderdishes",
+                    },
+                },
+            ],
+            order: [['createdAt', 'DESC']], // Sort by newest first
+        }) || [];
+
+        // Calculate the total price of all valid orders
+        const total_price = allOrders.reduce((acc, order) => acc + order.total_price, 0);
+
+        // Apply limit and offset for pagination
+        const orders = await Order.findAll({
             where: conditions,
             include: [
                 {
@@ -201,31 +221,32 @@ const getOrders = async (req) => {
             ],
             offset,
             limit,
-        });
-        if (!orders) {
-            orders = []
-        }
-        orders = orders.map(order => order.toJSON());
-        await Promise.all(orders.map(async (order) => {
-            if (order.dishes) {
-                order.dishes = await Promise.all(order.dishes.map(async (dish) => {
+            order: [['createdAt', 'DESC']], // Sort by newest first
+        }) || [];
+
+        const ordersJSON = await Promise.all(orders.map(async (order) => {
+            const orderJSON = order.toJSON();
+            if (orderJSON.dishes) {
+                orderJSON.dishes = await Promise.all(orderJSON.dishes.map(async (dish) => {
                     if (dish?.orderdishes?.option_id) {
-                        let option = await Option.findOne({ where: { id: dish.orderdishes.option_id } });
+                        const option = await Option.findOne({ where: { id: dish.orderdishes.option_id } });
                         if (option) {
-                            option = option.toJSON();
-                            dish.orderdishes = { ...dish.orderdishes, option_name: option.name, option_price: option.price };
+                            const optionJSON = option.toJSON();
+                            dish.orderdishes.option_name = optionJSON.name;
+                            dish.orderdishes.option_price = optionJSON.price;
                         }
                     }
                     return dish;
                 }));
             }
+            return orderJSON;
         }));
-        const total_price = orders.reduce((acc, order) => (acc + order.total_price), 0)
+
         return {
-            total_price: total_price,
-            numberOfOrder: orders.length,
-            pagesNumber: Math.ceil(orders.length / limit),
-            currentPage: orders
+            total_price,
+            numberOfOrder: ordersJSON.length,
+            pagesNumber: Math.ceil(allOrders.length / limit),
+            currentPage: ordersJSON
         };
     } catch (error) {
         throw new Error(error);
@@ -340,7 +361,7 @@ const statisticalOrders = async (req, res) => {
         const total_price = orders.reduce((acc, order) => acc + order.total_price, 0);
 
         // Trả về tổng doanh thu và số lượng đơn hàng cho tháng
-        return({
+        return ({
             total_price: total_price,
             orders: orders.length,
         });
