@@ -18,7 +18,7 @@ const employeeRoutes = (app) => {
         }
     });
 
-    route.get("/", verifyToken, async (req, res, next) => {
+    route.get("/", async (req, res, next) => {
         try {
             const employees = await getEmployees(req);
             res.status(200).json({ status: 200, listEmployess: employees });
