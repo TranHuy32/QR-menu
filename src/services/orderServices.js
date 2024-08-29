@@ -1,4 +1,4 @@
-import { Sequelize, where, Op, ENUM, or } from "sequelize";
+import { Sequelize, where, Op, ENUM, or, fn, col } from "sequelize";
 import db from "../models";
 import { Status } from "../const/const";
 import axios from 'axios';
@@ -347,42 +347,95 @@ const statisticalQuantityDish = async (req, res) => {
 
 const statisticalOrders = async (req, res) => {
     try {
-        const { month } = req.query;
+        const { startDate, endDate } = req.query;
 
-        // Kiểm tra nếu month là một số hợp lệ
-        const monthNumber = parseInt(month, 10);
-        if (isNaN(monthNumber) || monthNumber < 1 || monthNumber > 12) {
-            return res.status(400).json({ message: "Invalid month parameter. It must be a number between 1 and 12." });
+        // Kiểm tra nếu startDate và endDate được cung cấp
+        if (!startDate || !endDate) {
+            return res.status(400).json({ message: "Vui lòng cung cấp cả startDate và endDate." });
         }
 
-        // Lấy năm hiện tại
-        const year = new Date().getFullYear();
+        // Chuyển đổi startDate và endDate thành đối tượng Date
+        const start = new Date(startDate);
+        const end = new Date(endDate);
 
-        // Tạo startDate và endDate cho tháng cụ thể
-        const start = new Date(year, monthNumber - 1, 1, 0, 0, 0, 0);
-        const end = new Date(year, monthNumber, 0, 23, 59, 59, 999);
+        // Kiểm tra tính hợp lệ của ngày
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+            return res.status(400).json({ message: "Định dạng ngày không hợp lệ cho startDate hoặc endDate." });
+        }
 
-        // Tìm các đơn hàng trong khoảng thời gian
+        // Điều chỉnh thời gian của start và end
+        start.setHours(0, 0, 0, 0);
+        end.setHours(23, 59, 59, 999);
+
+        // Sử dụng Sequelize để truy vấn và nhóm theo năm và tháng
         const orders = await Order.findAll({
+            attributes: [
+                [fn('YEAR', col('createdAt')), 'year'],
+                [fn('MONTH', col('createdAt')), 'month'],
+                [fn('COUNT', col('id')), 'orders'],
+                [fn('SUM', col('total_price')), 'total_price'],
+            ],
             where: {
                 createdAt: {
                     [Op.between]: [start, end],
                 },
             },
+            group: ['year', 'month'],
+            order: [['year', 'ASC'], ['month', 'ASC']],
         });
 
-        // Tính tổng doanh thu
-        const total_price = orders.reduce((acc, order) => acc + order.total_price, 0);
+        // Định dạng kết quả từ truy vấn
+        const queryResult = orders.map(order => ({
+            year: order.get('year'),
+            month: order.get('month'),
+            total_price: parseFloat(order.get('total_price')) || 0,
+            orders: parseInt(order.get('orders'), 10) || 0,
+        }));
 
-        // Trả về tổng doanh thu và số lượng đơn hàng cho tháng
-        return ({
-            total_price: total_price,
-            orders: orders.length,
+        // Hàm tạo danh sách các tháng giữa start và end
+        const getMonthsBetween = (startDate, endDate) => {
+            const startYear = startDate.getFullYear();
+            const startMonth = startDate.getMonth() + 1; // Tháng từ 1-12
+            const endYear = endDate.getFullYear();
+            const endMonth = endDate.getMonth() + 1;
+
+            const months = [];
+
+            let currentYear = startYear;
+            let currentMonth = startMonth;
+
+            while (currentYear < endYear || (currentYear === endYear && currentMonth <= endMonth)) {
+                months.push({ year: currentYear, month: currentMonth });
+                currentMonth++;
+                if (currentMonth > 12) {
+                    currentMonth = 1;
+                    currentYear++;
+                }
+            }
+
+            return months;
+        };
+
+        const monthsList = getMonthsBetween(start, end);
+
+        // Kết hợp kết quả truy vấn với danh sách các tháng
+        const formattedResult = monthsList.map(m => {
+            const found = queryResult.find(r => r.year === m.year && r.month === m.month);
+            return {
+                year: m.year,
+                month: m.month,
+                total_price: found ? found.total_price : 0,
+                orders: found ? found.orders : 0,
+            };
         });
+
+        return formattedResult
 
     } catch (error) {
         // Gửi phản hồi lỗi
-        res.status(400).json({ message: "Can't get orders for the specified month", error: error.message });
+        const err = new Error("Can't get quantiyOrderAndTotailPrice ");
+        error.code = 400;
+        throw error;
     }
 };
 
