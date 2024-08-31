@@ -1,4 +1,4 @@
-import { Sequelize, where, Op, ENUM, or, fn, col } from "sequelize";
+import { Sequelize, where, Op, ENUM, or, fn, col, literal } from "sequelize";
 import db from "../models";
 import { Status } from "../const/const";
 import axios from 'axios';
@@ -300,50 +300,121 @@ const updateOrder = async (req, res) => {
     }
 };
 
+// const statisticalQuantityDish = async (req, res) => {
+//     try {
+//         const { startDate, endDate } = req.query;
+
+//         const start = new Date(startDate);
+//         const end = new Date(endDate);
+//         if (startDate === endDate) {
+//             end.setHours(23, 59, 59, 999);
+//         } else {
+//             start.setHours(0, 0, 0, 0);
+//             end.setHours(23, 59, 59, 999);
+//         }
+
+//         const dishes = await Orderdish.findAll({
+//             where: {
+//                 createdAt: {
+//                     [Op.between]: [start, end]
+//                 },
+
+//             },
+//             attributes: ['dish_id', [Sequelize.fn('SUM', Sequelize.col('Orderdish.quantity')), 'totalQuantity']],
+//             group: ['dish_id'],
+//             include: [
+//                 {
+//                     model: Dish,
+//                     as: 'dishes',
+//                     attributes: ['id', 'name', 'price'], // Add any other attributes you need
+//                     include: [
+//                         {
+//                             model: Order,
+//                             as: 'orders',
+//                             where: {
+//                                 status: 'completed' // Điều kiện chỉ lấy order có status là "completed"
+//                             },
+//                             attributes: [] // Không cần thuộc tính của Order trong kết quả cuối cùng
+//                         }
+//                     ]
+//                 }
+//             ]
+//         });
+
+//         const dishQuantities = dishes.map(dish => ({
+//             totalQuantity: dish.get('totalQuantity'),
+//             dishInfo: dish.dishes
+//         }));
+
+//         return dishQuantities;
+
+//     } catch (error) {
+//         const err = new Error("Can't get quantiy ");
+//         error.code = 400;
+//         throw error;
+//     }
+
+// }
 const statisticalQuantityDish = async (req, res) => {
-        try {
+    try {
         const { startDate, endDate } = req.query;
-    
+
+        if (!startDate || !endDate) {
+            return res.status(400).json({ message: "Vui lòng cung cấp cả startDate và endDate." });
+        }
+
         const start = new Date(startDate);
         const end = new Date(endDate);
-        if (startDate === endDate) {
-            end.setHours(23, 59, 59, 999);
-        } else {
-            start.setHours(0, 0, 0, 0);
-            end.setHours(23, 59, 59, 999);
-        }
-    
+        end.setHours(23, 59, 59, 999);
+        start.setHours(0, 0, 0, 0);
+
         const dishes = await Orderdish.findAll({
-            where: {
-                createdAt: {
-                    [Op.between]: [start, end]
-                }
-            },
-            attributes: ['dish_id', [Sequelize.fn('SUM', Sequelize.col('Orderdish.quantity')), 'totalQuantity']],
-            group: ['dish_id'],
+            attributes: [
+                'dish_id',
+                [fn('SUM', col('Orderdish.quantity')), 'totalQuantity'],  // Chỉ định rõ alias cho quantity
+                [col('dishes.id'), 'dish_id'], // Chỉ định rõ alias cho các trường từ bảng Dishes
+                [col('dishes.name'), 'name'],
+                [col('dishes.price'), 'price']
+            ],
             include: [
+                {
+                    model: Order,
+                    as: 'orders',  // Đảm bảo alias khớp với alias trong mô hình
+                    attributes: [],
+                    where: {
+                        status: 'completed',
+                        createdAt: {
+                            [Op.between]: [start, end]
+                        }
+                    }
+                },
                 {
                     model: Dish,
                     as: 'dishes',
-                    attributes: ['id', 'name', 'price'] // Add any other attributes you need
+                    attributes: []  // Không lấy thuộc tính nào từ bảng Dish tại đây
                 }
-            ]
+            ],
+            group: ['Orderdish.dish_id', 'dishes.id', 'dishes.name', 'dishes.price'],  // Khớp alias trong group
+            order: [[literal('totalQuantity'), 'DESC']] // Sắp xếp theo tổng số lượng giảm dần
         });
-    
-        const dishQuantities = dishes.map(dish => ({
-            totalQuantity: dish.get('totalQuantity'),
-            dishInfo: dish.dishes 
-        })); 
-    
-        return dishQuantities;
+
+        const result = dishes.map(item => ({
+            dish_id: item.dish_id,
+            name: item.get('name'),
+            price: item.get('price'),
+            totalQuantity: parseInt(item.get('totalQuantity'), 10)
+        }));
+
+        return result;
 
     } catch (error) {
-        const err = new Error("Can't get quantiy ");
-        error.code = 400;
-        throw error;
+        console.error('Error fetching dish statistics:', error);
+        return res.status(500).json({ message: "Đã xảy ra lỗi khi lấy thống kê món ăn." });
     }
+};
 
-}
+
+
 
 const statisticalOrders = async (req, res) => {
     try {
@@ -379,6 +450,7 @@ const statisticalOrders = async (req, res) => {
                 createdAt: {
                     [Op.between]: [start, end],
                 },
+                status: 'completed', // Thêm điều kiện lấy các order có status là "completed"
             },
             group: ['year', 'month'],
             order: [['year', 'ASC'], ['month', 'ASC']],
