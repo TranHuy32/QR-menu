@@ -25,22 +25,22 @@ const getTables = async (req) => {
         throw new Error(error)
     }
 }
-const getTablesById = async (req) => {
-    try {
-        const { id } = req.params;
-        const tableId = await Table.findByPk(id);
-        if (!tableId) {
-            throw new Error('Table not found')
-        }
-        return tableId;
+// const getTablesById = async (req) => {
+//     try {
+//         const { id } = req.params;
+//         const tableId = await Table.findByPk(id);
+//         if (!tableId) {
+//             throw new Error('Table not found')
+//         }
+//         return tableId;
 
-    } catch (error) {
-        throw new Error(error);
-    }
-}
+//     } catch (error) {
+//         throw new Error(error);
+//     }
+// }
 const getTablesByUuid = async (req, res) => {
     try {
-        const { uuid } = req.body;
+        const { uuid } = req.params;
 
 
         if (!uuid) {
@@ -95,7 +95,7 @@ const activeByUuid = async (req, res) => {
 const updatedTablesById = async (req) => {
     try {
         const { id } = req.params;
-        const updatedRows = await Table.update(req.body, {
+        const updatedRows = await Table.update(req.params, {
             where: { id }
         });
 
@@ -128,4 +128,4 @@ const deleteTablesById = async (req) => {
 }
 
 export { createTable, getTables }
-export { getTablesById, updatedTablesById, deleteTablesById, activeByUuid, getTablesByUuid }
+export {updatedTablesById, deleteTablesById, activeByUuid, getTablesByUuid }
