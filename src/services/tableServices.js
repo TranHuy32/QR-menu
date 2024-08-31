@@ -25,19 +25,19 @@ const getTables = async (req) => {
         throw new Error(error)
     }
 }
-const getTablesById = async (req) => {
-    try {
-        const { id } = req.params;
-        const tableId = await Table.findByPk(id);
-        if (!tableId) {
-            throw new Error('Table not found')
-        }
-        return tableId;
+// const getTablesById = async (req) => {
+//     try {
+//         const { id } = req.params;
+//         const tableId = await Table.findByPk(id);
+//         if (!tableId) {
+//             throw new Error('Table not found')
+//         }
+//         return tableId;
 
-    } catch (error) {
-        throw new Error(error);
-    }
-}
+//     } catch (error) {
+//         throw new Error(error);
+//     }
+// }
 const getTablesByUuid = async (req, res) => {
     try {
         const { uuid } = req.params;
@@ -68,7 +68,7 @@ const getTablesByUuid = async (req, res) => {
 const activeByUuid = async (req, res) => {
     try {
 
-        const { uuid, status } = req.params;
+        const { uuid, status } = req.body;
 
         if (!uuid || typeof status !== 'string') {
             throw new Error('Invalid request data');
