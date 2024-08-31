@@ -40,7 +40,7 @@ const getTablesById = async (req) => {
 }
 const getTablesByUuid = async (req, res) => {
     try {
-        const { uuid } = req.body;
+        const { uuid } = req.params;
 
 
         if (!uuid) {
@@ -68,7 +68,7 @@ const getTablesByUuid = async (req, res) => {
 const activeByUuid = async (req, res) => {
     try {
 
-        const { uuid, status } = req.body;
+        const { uuid, status } = req.params;
 
         if (!uuid || typeof status !== 'string') {
             throw new Error('Invalid request data');
@@ -95,7 +95,7 @@ const activeByUuid = async (req, res) => {
 const updatedTablesById = async (req) => {
     try {
         const { id } = req.params;
-        const updatedRows = await Table.update(req.body, {
+        const updatedRows = await Table.update(req.params, {
             where: { id }
         });
 
@@ -128,4 +128,4 @@ const deleteTablesById = async (req) => {
 }
 
 export { createTable, getTables }
-export { getTablesById, updatedTablesById, deleteTablesById, activeByUuid, getTablesByUuid }
+export {updatedTablesById, deleteTablesById, activeByUuid, getTablesByUuid }

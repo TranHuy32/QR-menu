@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createTable, getTables, getTablesById, updatedTablesById, deleteTablesById, activeByUuid, getTablesByUuid } from "../../../services/tableServices.js";
+import { createTable, getTables, updatedTablesById, deleteTablesById, activeByUuid, getTablesByUuid } from "../../../services/tableServices.js";
 import { verifyToken } from "../../../middleware/auth.js";
 
 const route = Router();
@@ -18,18 +18,18 @@ const tableRoutes = (app) => {
     }
   });
   // search table by ID
-  route.get("/:id", verifyToken, async (req, res, next) => {
-    try {
-      const tableId = await getTablesById(req);
-      res.status(200).json({ status: 201, listTable: tableId });
-    } catch (error) {
-      //   return next(err);
-      console.error(error);
-      res.status(500).json({ status: 500, message: "invalid tableId" });
-    }
-  });
+  // route.get("/:id", verifyToken, async (req, res, next) => {
+  //   try {
+  //     const tableId = await getTablesById(req);
+  //     res.status(200).json({ status: 201, listTable: tableId });
+  //   } catch (error) {
+  //     //   return next(err);
+  //     console.error(error);
+  //     res.status(500).json({ status: 500, message: "invalid tableId" });
+  //   }
+  // });
   // search table by uuid active
-  route.get("/", verifyToken, async (req, res, next) => {
+  route.get("/:uuid", async (req, res, next) => {
     try {
       console.log('Request received at GET /:uuid');
       const tableUuid = await getTablesByUuid(req, res); // Truyền cả req và res
