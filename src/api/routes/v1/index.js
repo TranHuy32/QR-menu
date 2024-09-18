@@ -11,6 +11,7 @@ import optionRoutes from './option';
 import billRoutes from './bill';
 import evaluateRoutes from './evaluate';
 import chatBotRoutes from './chatBotClient';
+import zaloPayRoutes from './zalopay';
 
 // any endpoints for api/{anything} will be here
 const v1 = Router();
@@ -27,5 +28,6 @@ employeeRoutes(v1);
 optionRoutes(v1);
 billRoutes(v1);
 evaluateRoutes(v1);
-chatBotRoutes(v1)
+chatBotRoutes(v1);
+zaloPayRoutes(v1);
 module.exports = v1;

@@ -120,4 +120,20 @@ const updateDish = async (req) => {
     }
 }
 
-export { createDish, getSearchDishes, updateDish }
+const deleteDish = async (req) => {
+    try {
+        const { id } = req.params;
+        const delDish = await Dish.destroy(
+            { where: { id } }
+        )
+        if(delDish[0] === 0){
+            throw new Error('Dish not found');
+        }
+        return { message: 'Dish delete successfull' };
+
+    } catch (error) {
+        throw error.message
+    }
+}
+
+export { createDish, getSearchDishes, updateDish, deleteDish }

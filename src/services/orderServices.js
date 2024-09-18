@@ -2,6 +2,10 @@ import { Sequelize, where, Op, ENUM, or, fn, col, literal } from "sequelize";
 import db from "../models";
 import { Status } from "../const/const";
 import axios from 'axios';
+// import {createZaloPayOrder } from './zaloPayServices'
+import crypto from 'crypto';
+const CryptoJS = require('crypto-js'); // npm install crypto-js
+const moment = require('moment'); // npm install moment
 
 const Order = db.Order;
 const Dish = db.Dish;
@@ -10,31 +14,183 @@ const Table_name = db.Table_name;
 const Option = db.Option;
 const User = db.User
 
+
+
+
+// const createOrder = async (req) => {
+//     const status = Status.PENDING;
+//     const { phone_number, table_id, dishes } = req.body;
+//     if (!phone_number) {
+//         throw new Error("Hãy xin thông tin của khách hàng!!!");
+//     }
+//     const table = await Table_name.findOne({
+//         where: {
+//             id: table_id,
+//             status: 'active'
+//         }
+//     });
+//     if (!table) {
+//         throw new Error(`Bàn này không tồn tại hoặc khách hàng đang sử dụng!`);
+//     }
+//     try {
+//         if (!dishes || dishes.length === 0) {
+//             throw new Error("Chưa có món ăn nào được chọn.");
+//         }
+//         let totalPrice = 0;
+
+//         const dishQuantity = {};
+//         for (let dish of dishes) {
+//             const { dish_id, quantity, option_id } = dish;
+
+//             if (dishQuantity[dish_id]) {
+//                 dishQuantity[dish_id].quantity += quantity;
+//             } else {
+//                 dishQuantity[dish_id] = {
+//                     id: dish_id,
+//                     quantity: quantity,
+//                     option_id: option_id
+//                 };
+//             }
+//         }
+//         for (const dish_id in dishQuantity) {
+//             try {
+//                 if (dishQuantity.hasOwnProperty(dish_id)) {
+//                     const quantity = dishQuantity[dish_id].quantity;
+//                     const option_id = dishQuantity[dish_id].option_id;
+//                     const existDish = await Dish.findOne({
+//                         where: {
+//                             id: dish_id,
+//                             quantity: {
+//                                 [Sequelize.Op.gte]: quantity
+//                             }
+//                         }
+//                     });
+
+//                     if (!existDish) {
+//                         throw new Error(`Món ăn với id ${dish_id} không tồn tại hoặc bị quá số lượng cho phép`);
+//                     }
+
+//                     let optionPrice = 0;
+//                     if (option_id) {
+//                         const existOption = await Option.findOne({
+//                             where: {
+//                                 id: option_id
+//                             }
+//                         });
+
+//                         if (!existOption) {
+//                             throw new Error(`Option với id ${option_id} không tồn tại`);
+//                         }
+//                         optionPrice = existOption.price;
+//                     }
+
+//                     totalPrice += (existDish.price * quantity) + (optionPrice * quantity);
+//                     console.log('Total price after calculation:', totalPrice);
+
+//                     // Cập nhật quantity của Dish sau khi đặt hàng
+//                     await Dish.update({
+//                         quantity: Sequelize.literal(`quantity - ${quantity}`),
+//                     }, {
+//                         where: {
+//                             id: dish_id,
+//                         }
+//                     });
+
+//                     console.log(`Updated quantity of dish ${dish_id} after order`);
+//                 }
+//             } catch (error) {
+//                 throw new Error(error.message);
+//             }
+//         }
+//         const order = await Order.create({
+//             status,
+//             phone_number,
+//             table_id,
+//             total_price: totalPrice,
+//         });
+//         for (let dish of dishes) {
+//             try {
+//                 let existingOrderDish = await Orderdish.findOne({
+//                     where: {
+//                         order_id: order.id,
+//                         dish_id: dish.dish_id,
+//                         option_id: dish.option_id || null,
+//                         note: dish.note
+//                     },
+//                 });
+//                 if (existingOrderDish) {
+//                     existingOrderDish.quantity += dish.quantity;
+//                     await existingOrderDish.save();
+//                 } else {
+//                     await Orderdish.create({
+//                         order_id: order.id,
+//                         dish_id: dish.dish_id,
+//                         option_id: dish.option_id || null,
+//                         quantity: dish.quantity,
+//                         note: dish.note
+//                     });
+//                 }
+//             } catch (error) {
+//                 throw new Error(error.message);
+//             }
+//         }
+//         const config = {
+//             headers: {
+//                 'x-client-id': process.env.CLIENT_ID,
+//                 'x-api-key': process.env.API_KEY,
+//                 'Content-Type': 'application/json'
+//             }
+//         };
+//         const data = {
+//             accountNo: process.env.ACCOUNT_NO,
+//             accountName: process.env.ACCOUNT_NAME,
+//             acqId: process.env.ACQ_ID,
+//             addInfo: `Thanh toán đơn hàng ${order.id}`,
+//             amount: order.total_price,
+//             template: "compact2"
+//         };
+//         const payQR = await axios.post('https://api.vietqr.io/v2/generate', data, config);
+//         order.qr_url = payQR?.data?.data?.qrDataURL || null;
+//         await order.save();
+//         return order;
+//     } catch (error) {
+//         throw new Error(error.message);
+//     }
+// };
+
+
+
+
 const createOrder = async (req) => {
     const status = Status.PENDING;
-    const { phone_number, table_id, dishes } = req.body;
+    const { phone_number, table_id, dishes, uuid } = req.body;
+
     if (!phone_number) {
         throw new Error("Hãy xin thông tin của khách hàng!!!");
     }
+
     const table = await Table_name.findOne({
         where: {
             id: table_id,
             status: 'active'
         }
     });
+
     if (!table) {
         throw new Error(`Bàn này không tồn tại hoặc khách hàng đang sử dụng!`);
     }
+
     try {
         if (!dishes || dishes.length === 0) {
             throw new Error("Chưa có món ăn nào được chọn.");
         }
-        let totalPrice = 0;
 
+        let totalPrice = 0;
         const dishQuantity = {};
+
+        // Tính toán tổng giá và lưu món ăn theo số lượng
         for (let dish of dishes) {
             const { dish_id, quantity, option_id } = dish;
-
             if (dishQuantity[dish_id]) {
                 dishQuantity[dish_id].quantity += quantity;
             } else {
@@ -45,62 +201,57 @@ const createOrder = async (req) => {
                 };
             }
         }
+
+        // Kiểm tra từng món ăn và tính tổng giá
         for (const dish_id in dishQuantity) {
-            try {
-                if (dishQuantity.hasOwnProperty(dish_id)) {
-                    const quantity = dishQuantity[dish_id].quantity;
-                    const option_id = dishQuantity[dish_id].option_id;
-                    const existDish = await Dish.findOne({
-                        where: {
-                            id: dish_id,
-                            quantity: {
-                                [Sequelize.Op.gte]: quantity
-                            }
-                        }
-                    });
+            if (dishQuantity.hasOwnProperty(dish_id)) {
+                const quantity = dishQuantity[dish_id].quantity;
+                const option_id = dishQuantity[dish_id].option_id;
 
-                    if (!existDish) {
-                        throw new Error(`Món ăn với id ${dish_id} không tồn tại hoặc bị quá số lượng cho phép`);
+                const existDish = await Dish.findOne({
+                    where: {
+                        id: dish_id,
+                        quantity: {
+                            [Sequelize.Op.gte]: quantity
+                        }
                     }
+                });
 
-                    let optionPrice = 0;
-                    if (option_id) {
-                        const existOption = await Option.findOne({
-                            where: {
-                                id: option_id
-                            }
-                        });
-
-                        if (!existOption) {
-                            throw new Error(`Option với id ${option_id} không tồn tại`);
-                        }
-                        optionPrice = existOption.price;
-                    }
-
-                    totalPrice += (existDish.price * quantity) + (optionPrice * quantity);
-                    console.log('Total price after calculation:', totalPrice);
-
-                    // Cập nhật quantity của Dish sau khi đặt hàng
-                    await Dish.update({
-                        quantity: Sequelize.literal(`quantity - ${quantity}`),
-                    }, {
-                        where: {
-                            id: dish_id,
-                        }
-                    });
-
-                    console.log(`Updated quantity of dish ${dish_id} after order`);
+                if (!existDish) {
+                    throw new Error(`Món ăn với id ${dish_id} không tồn tại hoặc số lượng vượt quá giới hạn`);
                 }
-            } catch (error) {
-                throw new Error(error.message);
+
+                let optionPrice = 0;
+                if (option_id) {
+                    const existOption = await Option.findOne({
+                        where: { id: option_id }
+                    });
+                    if (!existOption) {
+                        throw new Error(`Option với id ${option_id} không tồn tại`);
+                    }
+                    optionPrice = existOption.price;
+                }
+
+                totalPrice += (existDish.price * quantity) + (optionPrice * quantity);
+
+                // Cập nhật số lượng món ăn sau khi đặt hàng
+                await Dish.update({
+                    quantity: Sequelize.literal(`quantity - ${quantity}`),
+                }, {
+                    where: { id: dish_id }
+                });
             }
         }
+
+        // Tạo đơn hàng mới
         const order = await Order.create({
             status,
             phone_number,
             table_id,
             total_price: totalPrice,
         });
+
+        // Lưu chi tiết món ăn vào Orderdish
         for (let dish of dishes) {
             try {
                 let existingOrderDish = await Orderdish.findOne({
@@ -127,29 +278,67 @@ const createOrder = async (req) => {
                 throw new Error(error.message);
             }
         }
-        const config = {
-            headers: {
-                'x-client-id': process.env.CLIENT_ID,
-                'x-api-key': process.env.API_KEY,
-                'Content-Type': 'application/json'
-            }
-        };
-        const data = {
-            accountNo: process.env.ACCOUNT_NO,
-            accountName: process.env.ACCOUNT_NAME,
-            acqId: process.env.ACQ_ID,
-            addInfo: `Thanh toán đơn hàng ${order.id}`,
-            amount: order.total_price,
-            template: "compact2"
-        };
-        const payQR = await axios.post('https://api.vietqr.io/v2/generate', data, config);
-        order.qr_url = payQR?.data?.data?.qrDataURL || null;
+
+        // Gọi API ZaloPay để tạo QR code thanh toán
+        const zaloPayURL = await createZaloPayOrder(order,uuid);
+
+
+        order.qr_url = zaloPayURL;
+        console.log(2222, zaloPayURL);
         await order.save();
+
         return order;
     } catch (error) {
         throw new Error(error.message);
     }
 };
+
+const createZaloPayOrder = async (order,uuid) => {
+
+    const orderId = `${order.id}`;
+    console.log(1111, orderId);
+    const items = [];
+    // const transID = Math.floor(Math.random() * 1000000);
+    const embed_data = {
+        //sau khi hoàn tất thanh toán sẽ đi vào link này (thường là link web thanh toán thành công của mình)
+        redirecturl: `${process.env.HOST}/home/${uuid}`,
+    };
+
+    const orders = {
+        app_id: 2553,
+        app_trans_id: `${moment().format('YYMMDD')}_${orderId}`, // translation missing: vi.docs.shared.sample_code.comments.app_trans_id
+        app_user: order.phone_number,
+        app_time: moment().tz('Asia/Ho_Chi_Minh').valueOf(),
+        item: JSON.stringify(items),
+        embed_data: JSON.stringify(embed_data),
+        amount: order.total_price,
+        // callback_url: 'https://e189-14-191-147-193.ngrok-free.app/v1/payment/callback',
+        callback_url: `${process.env.HOST}/v1/payment/callback`,
+        description: `đơn hàng #${orderId}`,
+        bank_code: '',
+    };
+
+    // Tạo chữ ký (mac)
+    const dataToSign = `${orders.app_id}|${orders.app_trans_id}|${orders.app_user}|${orders.amount}|${orders.app_time}|${orders.embed_data}|${orders.item}`;
+    const signature = CryptoJS.HmacSHA256(dataToSign, process.env.ZALOPAY_KEY1).toString();
+    orders.mac = signature;
+
+    try {
+        console.log('Dữ liệu gửi đến ZaloPay:', orders);
+        const response = await axios.post(process.env.ZALOPAY_ENDPOINT, orders, {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        console.log('Phản hồi từ ZaloPay:', response.data);
+        return response.data.order_url || null; // Trả về URL để khách hàng thanh toán
+    } catch (error) {
+        console.error('Thanh toán ZaloPay thất bại:', error.message);
+        throw new Error(`Thanh toán ZaloPay thất bại: ${error.message}`);
+    }
+};
+
 
 const getOrders = async (req) => {
     const { page, pageSize, status, startDate, endDate, user_name, phone_number } = req.query;
@@ -412,6 +601,7 @@ const statisticalQuantityDish = async (req, res) => {
         return res.status(500).json({ message: "Đã xảy ra lỗi khi lấy thống kê món ăn." });
     }
 };
+
 
 
 

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { verifyToken } from "../../../middleware/auth.js";
 import upload from "../../../middleware/uploadImage.js";
-import { createDish, getSearchDishes, updateDish } from "../../../services/dishServices.js";
+import { createDish, deleteDish, getSearchDishes, updateDish } from "../../../services/dishServices.js";
 
 
 const route = Router();
@@ -49,6 +49,17 @@ const dishRoutes = (app) => {
             res.status(500).json({ status: 500, message: "Update unsuccessfully" });
         }
     })
+
+    route.delete("/:id",verifyToken, async (req, res, next) => {
+        try {
+            const delDish = await deleteDish(req);
+            res.status(200).json({ status: 202, NewCategory: delDish.message });
+        } catch (error) {
+            //   return next(err);
+            console.error(error);
+            res.status(500).json({ status: 500, message: "invalid deleteDishId" });
+        }
+    });
    
 
 }
